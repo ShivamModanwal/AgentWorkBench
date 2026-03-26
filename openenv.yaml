@@ -1,0 +1,70 @@
+name: AgentWorkBench
+
+version: 1.0
+
+description: >
+  Real-world AI task management environment for evaluating
+  classification, prioritization and workflow scheduling abilities
+  of AI agents.
+
+author: Shivam Modanwal
+
+environment:
+
+  type: openenv
+
+  entry_point: env.environment:AgentWorkBenchEnv
+
+tasks:
+
+  - name: Task Classification
+    difficulty: easy
+    objective: Classify engineering tasks correctly
+
+  - name: Priority Assignment
+    difficulty: medium
+    objective: Classify tasks and assign correct priority
+
+  - name: Workflow Optimization
+    difficulty: hard
+    objective: Classify, prioritize and schedule tasks efficiently
+
+api:
+
+  endpoints:
+
+    - /tasks
+
+    - /grader
+
+    - /baseline
+
+evaluation:
+
+  reward_range:
+
+    min: 0.0
+
+    max: 1.0
+
+  deterministic: true
+
+  grading: normalized
+
+baseline:
+
+  description: Rule based baseline agent
+
+  reproducible: true
+
+requirements:
+
+  python: ">=3.9"
+
+  dependencies:
+
+    - pydantic
+
+    - fastapi
+
+    - uvicorn
