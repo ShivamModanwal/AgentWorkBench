@@ -1,123 +1,174 @@
-# AgentWorkBench – Real-World AI Task Management Environment
+# AgentWorkBench – Real-World AI Task Management OpenEnv Environment
 
-## Overview
+AgentWorkBench is an OpenEnv-compatible evaluation environment designed to test how well AI agents can manage real-world workplace tasks such as task classification, priority assignment, and workflow scheduling. Unlike game environments, this project focuses on realistic engineering workflow evaluation with deterministic grading.
 
-AgentWorkBench is an AI evaluation environment that tests how well an AI agent can manage real workplace tasks like classification, prioritization and scheduling.
+---
 
-This project simulates engineering workflow instead of games.
+## Objectives
 
-## Objective
+The environment evaluates whether AI agents can:
 
-The environment evaluates if AI can:
+• Classify engineering tasks  
+• Assign correct priorities  
+• Schedule workflows efficiently  
+• Complete tasks correctly  
+• Minimize unnecessary actions  
 
-• Classify tasks  
-• Assign priorities  
-• Schedule tasks  
-• Complete work efficiently  
+---
 
-## Environment API
+## Environment Interface
 
-The environment follows OpenEnv structure:
+The environment follows the OpenEnv interaction model:
 
-reset() → start environment  
-step(action) → perform action  
-state() → show results  
+reset() → Initialize environment  
+step(action) → Execute agent decision  
+state() → Return evaluation results  
 
-## Tasks
+---
 
-Easy:
-Task classification only.
+## Task Difficulty Progression
 
-Medium:
-Classification + priority.
+Easy → Task classification only  
 
-Hard:
-Classification + priority + scheduling.
+Medium → Classification + priority assignment  
 
-## Reward System
+Hard → Classification + priority + scheduling optimization  
 
-Rewards:
-Correct classification  
-Correct priority  
-Correct scheduling  
-Efficiency  
+---
 
-Penalties:
-Wrong decisions  
-Extra steps  
+## Reward Design
 
-Score range:
-0 to 1.
+Rewards include:
+
+• Correct classification  
+• Correct priority assignment  
+• Correct scheduling  
+• Efficient task completion  
+
+Penalties include:
+
+• Incorrect decisions  
+• Duplicate actions  
+• Unnecessary steps  
+
+Final scores are normalized between **0.0 and 1.0**.
+
+---
+
+## Architecture Overview
+
+The project follows a modular environment design:
+
+Environment Layer → Task simulation and state transitions  
+Reward Layer → Decision evaluation logic  
+Grader Layer → Score normalization  
+Baseline Layer → Deterministic benchmark agent  
+API Layer → Environment interaction endpoints  
+
+This modular design ensures deterministic evaluation and maintainability.
+
+---
 
 ## Project Structure
 
 env/
-environment.py
-tasks.py 
-grader.py 
-reward.py 
-models.py
+    environment.py
+    tasks.py
+    grader.py
+    reward.py
+    models.py
 
 baseline/
-baseline_agent.py
+    baseline_agent.py
 
 api/
-server.py
+    server.py
 
-openenv.yaml
+openenv.yaml  
+Dockerfile  
+requirements.txt  
+README.md  
 
-## Run Project
+---
 
-Install:
+## How to Run
+
+### Install dependencies
 
 pip install -r requirements.txt
 
-Run baseline:
+### Run baseline agent
 
 python -m baseline.baseline_agent
 
-Run API:
+### Run API server
 
 uvicorn api.server:app --reload
 
-Open browser:
+Open in browser:
 
 http://127.0.0.1:8000/docs
 
-## Author
+---
 
-Shivam Modanwal
+## API Endpoints
 
-## Architecture Overview
+/tasks → List available tasks  
 
-AgentWorkBench follows a modular environment design:
+/grader → Return evaluation state  
 
-Environment Layer:
-Handles task simulation, state transitions and episode lifecycle.
+/baseline → Run baseline benchmark  
 
-Reward Layer:
-Evaluates decision correctness and efficiency.
-
-Grader Layer:
-Normalizes reward into final performance score.
-
-Baseline Layer:
-Provides deterministic benchmark agent.
-
-API Layer:
-Exposes environment interaction endpoints.
-
-This separation ensures maintainability and deterministic evaluation.
-
-## Design Goals
-
-This environment was designed with three priorities:
-
-1 Reliability → deterministic grading
-2 Realism → workplace task simulation
-3 Simplicity → clean environment interface
-
+---
 
 ## Evaluation Philosophy
 
-The environment prioritizes correctness, efficiency, and decision quality rather than raw task completion to better reflect real-world AI workplace performance.
+The environment prioritizes:
+
+• Decision correctness  
+• Workflow efficiency  
+• Task prioritization quality  
+
+rather than simple task completion to better reflect real-world AI workplace evaluation.
+
+---
+
+## Use Cases
+
+This environment can be used for:
+
+• AI agent evaluation  
+• Workflow optimization testing  
+• Task management benchmarking  
+• Research experimentation  
+
+---
+
+## Troubleshooting
+
+If dependencies missing:
+
+pip install -r requirements.txt
+
+If port is busy:
+
+uvicorn api.server:app --port 8001
+
+---
+
+## Design Goals
+
+The environment was built with three priorities:
+
+Reliability → deterministic grading  
+
+Realism → workplace simulation  
+
+Simplicity → clean environment interface  
+
+---
+
+## Author
+
+Shivam Modanwal  
+B.Tech – AI Environment Evaluation Project
