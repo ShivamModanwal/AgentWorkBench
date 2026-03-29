@@ -12,6 +12,13 @@ def home():
 
     return {"message":"AgentWorkBench Environment Running"}
 
+@app.get("/reset")
+def reset_env():
+
+    obs = env.reset()
+
+    return obs.model_dump()
+
 @app.get("/favicon.ico")
 def favicon():
     return {}

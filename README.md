@@ -38,137 +38,90 @@ Hard → Classification + priority + scheduling optimization
 
 ## Reward Design
 
-Rewards include:
+Rewards:
+Correct classification  
+Correct priority  
+Correct scheduling  
+Efficiency  
 
-• Correct classification  
-• Correct priority assignment  
-• Correct scheduling  
-• Efficient task completion  
+Penalties:
+Wrong decisions  
+Extra steps  
 
-Penalties include:
-
-• Incorrect decisions  
-• Duplicate actions  
-• Unnecessary steps  
-
-Final scores are normalized between **0.0 and 1.0**.
-
----
-
-## Architecture Overview
-
-The project follows a modular environment design:
-
-Environment Layer → Task simulation and state transitions  
-Reward Layer → Decision evaluation logic  
-Grader Layer → Score normalization  
-Baseline Layer → Deterministic benchmark agent  
-API Layer → Environment interaction endpoints  
-
-This modular design ensures deterministic evaluation and maintainability.
-
----
+Score range:
+0 to 1.
 
 ## Project Structure
 
+AgentWorkBench/
+
 env/
-    environment.py
-    tasks.py
-    grader.py
-    reward.py
-    models.py
+environment.py
+tasks.py
+grader.py
+reward.py
+models.py
 
 baseline/
-    baseline_agent.py
+baseline_agent.py
 
 api/
-    server.py
+server.py
 
-openenv.yaml  
-Dockerfile  
-requirements.txt  
-README.md  
+openenv.yaml
 
----
+## Run Project
 
-## How to Run
-
-### Install dependencies
+Install:
 
 pip install -r requirements.txt
 
-### Run baseline agent
+Run baseline:
 
 python -m baseline.baseline_agent
 
-### Run API server
+Run API:
 
 uvicorn api.server:app --reload
 
-Open in browser:
+Open browser:
 
 http://127.0.0.1:8000/docs
 
----
+## Author
 
-## API Endpoints
+Shivam Modanwal
 
-/tasks → List available tasks  
+## Architecture Overview
 
-/grader → Return evaluation state  
+AgentWorkBench follows a modular environment design:
 
-/baseline → Run baseline benchmark  
+Environment Layer:
+Handles task simulation, state transitions and episode lifecycle.
 
----
+Reward Layer:
+Evaluates decision correctness and efficiency.
 
-## Evaluation Philosophy
+Grader Layer:
+Normalizes reward into final performance score.
 
-The environment prioritizes:
+Baseline Layer:
+Provides deterministic benchmark agent.
 
-• Decision correctness  
-• Workflow efficiency  
-• Task prioritization quality  
+API Layer:
+Exposes environment interaction endpoints.
 
-rather than simple task completion to better reflect real-world AI workplace evaluation.
-
----
-
-## Use Cases
-
-This environment can be used for:
-
-• AI agent evaluation  
-• Workflow optimization testing  
-• Task management benchmarking  
-• Research experimentation  
-
----
-
-## Troubleshooting
-
-If dependencies missing:
-
-pip install -r requirements.txt
-
-If port is busy:
-
-uvicorn api.server:app --port 8001
-
----
+This separation ensures maintainability and deterministic evaluation.
 
 ## Design Goals
 
-The environment was built with three priorities:
+This environment was designed with three priorities:
 
-Reliability → deterministic grading  
+1 Reliability → deterministic grading
+2 Realism → workplace task simulation
+3 Simplicity → clean environment interface
 
-Realism → workplace simulation  
 
-Simplicity → clean environment interface  
+## Evaluation Philosophy
 
----
-
-## Author
-
-Shivam Modanwal  
-B.Tech – AI Environment Evaluation Project
+The environment prioritizes correctness, efficiency, and decision quality rather than raw task completion to better reflect real-world AI workplace performance.

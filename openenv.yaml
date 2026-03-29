@@ -1,13 +1,17 @@
 name: AgentWorkBench
 
-version: 1.0
+version: 1.0.0
 
 description: >
-  Real-world AI task management environment for evaluating
-  classification, prioritization and workflow scheduling abilities
-  of AI agents.
+  AgentWorkBench is a real-world OpenEnv environment designed to evaluate
+  AI agents on workplace task management including task classification,
+  priority assignment and workflow scheduling with deterministic grading.
 
-author: Shivam Modanwal
+author:
+
+  - Shivam Modanwal (B.Tech IT, 3rd Year)
+
+  - Mohd Salim Naeem (B.Tech AIML, 3rd Year)
 
 environment:
 
@@ -15,31 +19,37 @@ environment:
 
   entry_point: env.environment:AgentWorkBenchEnv
 
+  observation_type: typed
+
+  action_type: typed
+
+  reward_type: float
+
 tasks:
 
-  - name: Task Classification
+  - id: task_easy
+    name: Task Classification
     difficulty: easy
     objective: Classify engineering tasks correctly
+    reward_range: [0.0,1.0]
 
-  - name: Priority Assignment
+  - id: task_medium
+    name: Priority Assignment
     difficulty: medium
     objective: Classify tasks and assign correct priority
+    reward_range: [0.0,1.0]
 
-  - name: Workflow Optimization
+  - id: task_hard
+    name: Workflow Optimization
     difficulty: hard
     objective: Classify, prioritize and schedule tasks efficiently
-
-api:
-
-  endpoints:
-
-    - /tasks
-
-    - /grader
-
-    - /baseline
+    reward_range: [0.0,1.0]
 
 evaluation:
+
+  deterministic: true
+
+  grading: normalized
 
   reward_range:
 
@@ -47,15 +57,45 @@ evaluation:
 
     max: 1.0
 
-  deterministic: true
+  metrics:
 
-  grading: normalized
+    - classification_accuracy
+
+    - priority_accuracy
+
+    - scheduling_accuracy
+
+    - efficiency
 
 baseline:
 
-  description: Rule based baseline agent
+  inference_script: inference.py
+
+  description: Deterministic rule-based baseline agent
 
   reproducible: true
+
+api:
+
+  endpoints:
+
+    - /reset
+
+    - /tasks
+
+    - /grader
+
+    - /baseline
+
+    - /health
+
+infrastructure:
+
+  docker_required: true
+
+  runtime_limit_minutes: 20
+
+  cpu_only: true
 
 requirements:
 
@@ -68,3 +108,18 @@ requirements:
     - fastapi
 
     - uvicorn
+
+    - openai
+
+compliance:
+
+  openenv_spec: true
+
+  typed_models: true
+
+  reset_step_state_interface: true
+
+notes: >
+  This environment focuses on realistic AI workplace evaluation rather than
+  synthetic tasks. It emphasizes decision correctness, workflow efficiency
+  and deterministic grading for reproducible benchmarking.
