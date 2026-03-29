@@ -220,7 +220,7 @@ Shivam Modanwal
 B.Tech (Information Technology), 3rd Year  
 Role: Environment Architecture & Integration  
 
-Mohd Salim Naeem  
+Mohd. Salim Naeem  
 B.Tech (Artificial Intelligence & Machine Learning), 3rd Year  
 Role: Task Design, Testing & Validation  
 
