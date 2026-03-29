@@ -2,12 +2,9 @@ try:
 
     from openai import OpenAI
 
-    client = OpenAI()
+except ImportError:
 
-except:
-
-    client = None
-    
+    OpenAI = None
 import os
 
 from env.environment import AgentWorkBenchEnv
