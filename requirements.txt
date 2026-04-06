@@ -1,5 +1,7 @@
-
-pydantic
+openenv-core
+gradio
 fastapi
 uvicorn
 openai
+python-dotenv
+pydantic

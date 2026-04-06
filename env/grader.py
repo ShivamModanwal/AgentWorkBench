@@ -1,20 +1,36 @@
 """
 Grader module.
-
 Normalizes total reward into final score.
 Ensures deterministic evaluation.
 """
-def grade(total_reward, max_reward, mistakes=0):
+def grade(expected, output):
 
-    score = total_reward / max_reward
+    output = output.lower()
 
-    # mistake penalty
-    score -= mistakes * 0.02
+    score = 0.0
 
-    if score < 0:
-        score = 0
+    # basic response exists
+    if len(output) > 20:
+        score += 0.3
 
-    if score > 1:
-        score = 1
+    # reasoning keywords
+    keywords = [
+        "fix",
+        "solution",
+        "issue",
+        "improve",
+        "update",
+        "implement",
+        "resolve",
+        "analyze"
+    ]
 
-    return round(score,3)
+    for word in keywords:
+        if word in output:
+            score += 0.1
+
+    # cap score
+    if score > 1.0:
+        score = 1.0
+
+    return round(score,2)

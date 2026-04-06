@@ -1,5 +1,23 @@
+# Python
 venv/
 __pycache__/
 *.pyc
-.idea/
+*.pyo
+*.pyd
+
+# Environment
+.env
+
+# Gradio
+.gradio/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# IDE
 .vscode/
+.idea/
