@@ -1,239 +1,319 @@
-# 🚀 AgentWorkBench – Real-World AI Task Management OpenEnv Environment
+# 🚀 AgentWorkBench – AI Task Management Evaluation Environment
 
-AgentWorkBench is an OpenEnv-compatible evaluation environment designed to test how well AI agents manage real-world workplace tasks such as task classification, priority assignment, and workflow scheduling. Unlike game environments, this project focuses on realistic engineering workflow evaluation with deterministic grading.
+AgentWorkBench is an OpenEnv-compatible AI evaluation environment designed to measure how effectively AI agents can perform realistic productivity tasks such as classification, prioritization, scheduling, and task completion.
 
---------------------------------------------------
+The environment simulates real assistant workflows and evaluates decision quality using a structured reward mechanism based on task difficulty.
 
-## Objectives
+---
 
-The environment evaluates whether AI agents can:
+# 🎯 Project Goal
 
-• Classify engineering tasks  
-• Assign correct priorities  
-• Schedule workflows efficiently  
-• Complete tasks correctly  
-• Minimize unnecessary actions  
+The objective of AgentWorkBench is to:
 
---------------------------------------------------
+• Evaluate AI agent decision making
+• Simulate realistic productivity workflows
+• Measure multi-step reasoning ability
+• Provide difficulty-based evaluation
+• Enable reproducible AI testing
 
-## Environment Interface
+This project focuses on realistic AI assistant behaviour instead of toy environments.
 
-The environment follows the OpenEnv interaction model:
+---
 
-reset() → Initialize environment  
-step(action) → Execute agent decision  
-state() → Return evaluation results  
+# 🏗 System Architecture
 
---------------------------------------------------
+The system follows a modular AI evaluation pipeline:
 
-## Task Difficulty Progression
+```
+            User Input
+                │
+                ▼
+         Gradio Interface
+                │
+                ▼
+            AI Agent
+                │
+                ▼
+     AgentWorkBench Environment
+                │
+                ▼
+         Task Evaluation Engine
+                │
+                ▼
+          Reward Computation
+                │
+                ▼
+         Agent Performance Score
+```
 
-Easy → Task classification only  
+---
 
-Medium → Classification + priority assignment  
+# ⚙ System Flow
 
-Hard → Classification + priority + scheduling optimization  
+User → Gradio UI → Agent → Environment → Reward System
 
---------------------------------------------------
+---
 
-## Reward Design
+# 🧠 Core Features
 
-Rewards include:
+✔ OpenEnv compatible environment
+✔ Difficulty based task evaluation
+✔ Multi-factor reward system
+✔ Task classification testing
+✔ Priority reasoning evaluation
+✔ Scheduling decision testing
+✔ Partial reward scoring
+✔ Defensive reward normalization
+✔ FastAPI integration
+✔ Gradio interface
 
-• Correct classification  
-• Correct priority assignment  
-• Correct scheduling  
-• Efficient task completion  
+---
 
-Penalties include:
+# 📁 Project Structure
 
-• Incorrect decisions  
-• Duplicate actions  
-• Unnecessary steps  
+AgentWorkBench/
 
-Final scores are normalized between **0.0 and 1.0**
+├── env/
+│   ├── environment.py
+│   ├── tasks.py
+│   ├── models.py
+│   ├── reward.py
+│   ├── grader.py
+│
+├── api/
+├── baseline/
+│
+├── app.py
+├── inference.py
+├── openenv.yaml
+├── requirements.txt
+├── Dockerfile
+└── README.md
 
---------------------------------------------------
+---
 
-## Architecture Overview
+# 🔬 Environment Design
 
-The project follows a modular environment design:
+The environment evaluates agents across increasing difficulty levels:
 
-Environment Layer → Task simulation and state transitions  
+EASY → Basic classification
+MEDIUM → Classification + priority reasoning
+HARD → Classification + priority + scheduling
 
-Reward Layer → Decision evaluation logic  
+This progressive structure tests deeper reasoning ability.
 
-Grader Layer → Score normalization  
+---
 
-Baseline Layer → Deterministic benchmark agent  
+# 🎮 Action Evaluation Dimensions
 
-API Layer → Environment interaction endpoints  
+Agents are evaluated on:
 
-This modular design ensures deterministic evaluation, maintainability, and reproducible benchmarking.
+• Task category prediction
+• Priority prediction
+• Scheduling decisions
+• Task completion decision
 
---------------------------------------------------
+This creates a structured decision evaluation environment.
 
-## Project Structure
+---
 
-AgentWorkBench
+# 🏆 Reward System (Actual Implementation)
 
-env  
-environment.py  
-tasks.py  
-grader.py  
-reward.py  
-models.py  
+The reward system is difficulty dependent and uses partial scoring.
 
-api  
-server.py  
+## EASY Tasks
 
-baseline (development reference)
+Evaluation:
 
-inference.py  
+• Category prediction
+• Task completion
 
-openenv.yaml  
-Dockerfile  
-requirements.txt  
-README.md  
-.gitignore  
+Rewards:
 
---------------------------------------------------
+Correct category → +0.8
+Wrong category → −0.1
+Mark complete → +0.2
 
-## How to Run
+Maximum reward = 1.0
+
+---
+
+## MEDIUM Tasks
+
+Evaluation:
+
+• Category prediction
+• Priority prediction
+• Completion decision
+
+Rewards:
+
+Correct category → +0.5
+Wrong category → −0.1
+
+Correct priority → +0.3
+Wrong priority → −0.05
+
+Mark complete → +0.2
+
+Maximum reward = 1.0
+
+---
+
+## HARD Tasks
+
+Evaluation:
+
+• Category prediction
+• Priority prediction
+• Scheduling position
+• Completion decision
+
+Rewards:
+
+Correct category → +0.4
+Wrong category → −0.1
+
+Correct priority → +0.3
+Wrong priority → −0.05
+
+Correct scheduling → +0.2
+
+Mark complete → +0.2
+
+Maximum reward normalized to 1.0
+
+---
+
+# 📊 Reward Normalization Rules
+
+To maintain stable evaluation:
+
+Minimum reward capped at:
+−0.2
+
+Maximum reward capped at:
+1.0
+
+This prevents reward collapse and keeps scoring stable.
+
+---
+
+# 🧪 Example Evaluation
+
+Task:
+
+Category: Study
+Priority: High
+Schedule Position: 1
+
+Agent Prediction:
+
+Category: Study ✔
+Priority: High ✔
+Schedule: 2 ✖
+Complete: True ✔
+
+Reward:
+
+Category → +0.4
+Priority → +0.3
+Schedule → 0
+Completion → +0.2
+
+Total reward:
+0.9
+
+---
+
+# 💻 Installation
+
+Clone repository:
+
+git clone <your repo link>
+
+cd AgentWorkBench
 
 Install dependencies:
 
 pip install -r requirements.txt
 
-Run baseline evaluation:
+---
+
+# ▶ Running Locally
+
+Run agent:
 
 python inference.py
 
-Expected output:
+Run interface:
 
-Task 1 Score: X  
-Task 2 Score: X  
-Task 3 Score: X  
+python app.py
 
-Final Score: X
+---
 
-Run API server:
+# 🌐 Deployment
 
-uvicorn api.server:app --reload
+The project is deployed using HuggingFace Spaces for live testing.
 
-Open:
+The environment is designed to be easily reproducible.
 
-http://127.0.0.1:8000/docs
+---
 
---------------------------------------------------
+# 📊 Evaluation Metrics
 
-## API Endpoints
+Agents are evaluated based on:
 
-/reset → Reset environment  
+• Prediction accuracy
+• Decision correctness
+• Scheduling quality
+• Task completion logic
+• Overall reward score
 
-/tasks → List available tasks  
+---
 
-/grader → Get evaluation state  
+# 🧩 Technologies Used
 
-/baseline → Run baseline evaluation  
+Python
+FastAPI
+Gradio
+OpenEnv
+LLM integration
+Docker
 
-/health → Environment status  
+---
 
---------------------------------------------------
-
-## OpenEnv Compliance
-
-This project implements:
-
-• Typed observation models  
-• Typed action models  
-• Typed reward outputs  
-• reset(), step(), state() interface  
-• Deterministic grading  
-• Reproducible inference script  
-• OpenEnv metadata configuration  
-
---------------------------------------------------
-
-## Evaluation Philosophy
-
-The environment prioritizes:
-
-• Decision correctness  
-• Workflow efficiency  
-• Task prioritization quality  
-
-rather than simple task completion to better reflect real-world AI workplace evaluation.
-
---------------------------------------------------
-
-## Use Cases
+# 🎯 Use Cases
 
 This environment can be used for:
 
-• AI agent evaluation  
-• Workflow optimization testing  
-• Task management benchmarking  
-• Research experimentation  
-• OpenEnv evaluation pipelines  
+AI agent benchmarking
+Assistant behaviour testing
+LLM reasoning evaluation
+Workflow automation research
+Agent decision testing
 
---------------------------------------------------
+---
 
-## Design Goals
+# 👨‍💻 Author
 
-Reliability → Deterministic grading  
+Shivam Modanwal
 
-Realism → Workplace simulation  
+B.Tech Computer Science
+AI Systems & Agent Development
 
-Simplicity → Clean environment interface  
+---
 
---------------------------------------------------
+# 🚀 Future Improvements
 
-## Troubleshooting
+Multi-agent environments
+Advanced scheduling problems
+Memory based agents
+Reinforcement learning agents
+Complex workflow chains
 
-If dependencies missing:
+---
 
-pip install -r requirements.txt
+# ⭐ Conclusion
 
-If API port busy:
-
-uvicorn api.server:app --port 8001
-
-If inference fails:
-
-Ensure Python version ≥ 3.9
-
---------------------------------------------------
-
-## Future Improvements
-
-Possible extensions:
-
-• Multi-agent evaluation  
-• Dynamic task generation  
-• Advanced scheduling optimization  
-• Learning agent integration  
-
---------------------------------------------------
-
-## Team
-
-Shivam Modanwal  
-B.Tech Information Technology 3rd Year  
-Role: Environment Architecture and Integration  
-
-Mohd. Salim Naeem  
-B.Tech Artificial Intelligence and Machine Learning 3rd Year  
-Role: Task Design Testing and Validation  
-
---------------------------------------------------
-
-## Author Notes
-
-This project was developed as part of an AI environment evaluation assessment focused on real-world AI task management scenarios rather than synthetic benchmarks.
-
---------------------------------------------------
-
-## License
-
-MIT License
+AgentWorkBench provides a structured evaluation environment for testing AI agents on realistic productivity tasks, focusing on multi-step reasoning and decision quality rather than simple task execution.
