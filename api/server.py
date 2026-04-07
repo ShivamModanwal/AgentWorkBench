@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from env.environment import AgentWorkBenchEnv
 from env.models import Action, TaskCategory, TaskPriority
 
@@ -17,8 +18,9 @@ def home():
 def reset_env():
 
     obs = env.reset()
+    return JSONResponse(content=obs.model_dump())
 
-    return obs.model_dump()
+    
 
 
 
