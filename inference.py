@@ -2,8 +2,7 @@ AGENT_NAME = "TaskMind AI"
 AGENT_VERSION = "1.0"
 AGENT_MODE = "Autonomous Task Classification Agent"
 
-import os
-import os
+
 import os
 import time
 from typing import Dict, List
@@ -80,9 +79,10 @@ def analyze_task(description):
 
     return category, priority, reasoning, confidence
 
-    # =========================
-    # Agent confidence evaluator
-    # =========================
+
+# =========================
+# Agent confidence evaluator
+# =========================
 
 def agent_confidence_score(reward):
 
@@ -105,8 +105,7 @@ def run_task(task):
     start = time.time()
 
     try:
-
-        env.reset() 
+        env.reset()
 
         # AI analysis simulation
         category, priority, reasoning, confidence = analyze_task(task.description)
@@ -165,10 +164,9 @@ Task processed and marked complete.
 
             "runtime": runtime,
 
-            "status": "SUCCESS" if reward >= 0.5 else "FAILED",   # ← ADD COMMA
+            "status": "SUCCESS" if reward >= 0.5 else "FAILED",
 
             "metrics": {
-                
 
                 "decision_confidence": round(confidence,2),
 
@@ -211,6 +209,8 @@ def evaluate():
 
     print("\nBenchmark Evaluation Started\n")
 
+    env.reset()   # FIX: reset once
+
     for task in TASKS:
 
         result = run_task(task)
@@ -218,6 +218,11 @@ def evaluate():
         print(task.title,"→",result["reward"])
 
         scores.append(result["reward"])
+
+
+    if len(scores) == 0:
+
+        return 0
 
 
     avg = sum(scores)/len(scores)
