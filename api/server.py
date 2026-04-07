@@ -1,3 +1,4 @@
+from app import run_selected_task, run_all_tasks
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from env.environment import AgentWorkBenchEnv
@@ -139,3 +140,17 @@ def run_baseline():
 
         "total_reward":state.total_reward
     }
+
+@app.get("/run_task/{task_id}")
+def api_run_task(task_id:int):
+
+    result = run_selected_task(task_id)
+
+    return result    
+
+@app.get("/run_all")
+def api_run_all():
+
+    result = run_all_tasks()
+
+    return result  

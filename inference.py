@@ -1,3 +1,7 @@
+"""
+TaskMind AI Agent - HTTP-based inference script
+Calls the AgentWorkBench HTTP API (required for OpenEnv compliance)
+"""
 AGENT_NAME = "TaskMind AI"
 AGENT_VERSION = "1.0"
 AGENT_MODE = "Autonomous Task Classification Agent"
@@ -113,15 +117,17 @@ def run_task(task):
 
         action = Action(
 
-            task_id=str(task.id),
-
+            task_id=task.id,
+ 
             predicted_category=category,
 
             predicted_priority=priority,
 
             scheduled_position=getattr(task,"schedule_position",1),
 
-            mark_complete=True
+            mark_complete=True,
+
+
         )
 
 

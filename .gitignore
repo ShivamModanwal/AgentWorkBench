@@ -8,9 +8,6 @@ __pycache__/
 # Environment
 .env
 
-# Gradio
-.gradio/
-
 # OS
 .DS_Store
 Thumbs.db
