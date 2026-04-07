@@ -25,25 +25,25 @@ This project focuses on realistic AI assistant behaviour instead of toy environm
 The system follows a modular AI evaluation pipeline:
 
 ```
-            User Input
-                │
-                ▼
-         Gradio Interface
-                │
-                ▼
-            AI Agent
-                │
-                ▼
-     AgentWorkBench Environment
-                │
-                ▼
-         Task Evaluation Engine
-                │
-                ▼
-          Reward Computation
-                │
-                ▼
-         Agent Performance Score
+User Input
+    │
+    ▼
+Gradio Interface
+    │
+    ▼
+AI Agent
+    │
+    ▼
+AgentWorkBench Environment
+    │
+    ▼
+Task Evaluation Engine
+    │
+    ▼
+Reward Computation
+    │
+    ▼
+Agent Performance Score
 ```
 
 ---
@@ -71,6 +71,7 @@ User → Gradio UI → Agent → Environment → Reward System
 
 # 📁 Project Structure
 
+```
 AgentWorkBench/
 
 ├── env/
@@ -89,6 +90,7 @@ AgentWorkBench/
 ├── requirements.txt
 ├── Dockerfile
 └── README.md
+```
 
 ---
 
@@ -104,16 +106,26 @@ This progressive structure tests deeper reasoning ability.
 
 ---
 
-# 🎮 Action Evaluation Dimensions
+# 🎮 Action Space
 
-Agents are evaluated on:
+Agent predicts:
 
-• Task category prediction
-• Priority prediction
-• Scheduling decisions
-• Task completion decision
+• Task category
+• Task priority
+• Schedule position
+• Completion decision
 
-This creates a structured decision evaluation environment.
+---
+
+# 👁 Observation Space
+
+Agent receives:
+
+• Task description
+• Task difficulty
+• Task metadata
+• Current environment state
+• Completed tasks
 
 ---
 
@@ -190,12 +202,35 @@ Maximum reward normalized to 1.0
 To maintain stable evaluation:
 
 Minimum reward capped at:
-−0.2
+**−0.2**
 
 Maximum reward capped at:
-1.0
+**1.0**
+
+Reward range:
+**−0.2 → 1.0**
 
 This prevents reward collapse and keeps scoring stable.
+
+---
+
+# 🔌 OpenEnv API Endpoints
+
+The environment exposes required OpenEnv endpoints:
+
+POST **/reset** → Reset environment
+
+POST **/step** → Execute agent action
+
+GET **/state** → Get environment state
+
+GET **/health** → Health check
+
+Additional helper endpoints:
+
+GET **/tasks**
+GET **/grader**
+GET **/baseline**
 
 ---
 
@@ -222,7 +257,7 @@ Schedule → 0
 Completion → +0.2
 
 Total reward:
-0.9
+**0.9**
 
 ---
 
@@ -230,13 +265,17 @@ Total reward:
 
 Clone repository:
 
-git clone <your repo link>
+```
+git clone <repo_url>
 
 cd AgentWorkBench
+```
 
 Install dependencies:
 
+```
 pip install -r requirements.txt
+```
 
 ---
 
@@ -244,11 +283,15 @@ pip install -r requirements.txt
 
 Run agent:
 
+```
 python inference.py
+```
 
 Run interface:
 
+```
 python app.py
+```
 
 ---
 
@@ -256,7 +299,7 @@ python app.py
 
 The project is deployed using HuggingFace Spaces for live testing.
 
-The environment is designed to be easily reproducible.
+The environment is designed to be easily reproducible and OpenEnv compliant.
 
 ---
 
