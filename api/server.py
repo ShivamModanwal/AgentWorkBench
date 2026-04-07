@@ -10,14 +10,21 @@ env = AgentWorkBenchEnv()
 
 @app.get("/")
 def home():
+
     return {"message":"AgentWorkBench Environment Running"}
 
+
+@app.get("/health")
+def health():
+
+    return {"status":"ok"}
 
 
 @app.post("/reset")
 def reset_env():
 
     obs = env.reset()
+
     return JSONResponse(content=obs.model_dump())
 
     
@@ -33,13 +40,13 @@ def step_env(action: Action):
 
         "observation":obs.model_dump(),
 
-        "reward":round(r,3),
+        "reward":r,
 
         "done":done,
 
         "info":info
-    }
 
+    }
 
 
 @app.get("/state")
@@ -48,11 +55,6 @@ def get_state():
     state = env.state()
 
     return state.model_dump()
-
-
-@app.get("/favicon.ico")
-def favicon():
-    return {}
 
 
 @app.get("/tasks")
@@ -69,10 +71,6 @@ def get_grader():
     state = env.state()
 
     return state.model_dump()
-
-@app.get("/health")
-def health():
-    return {"status":"ok"}
 
 
 @app.get("/baseline")
