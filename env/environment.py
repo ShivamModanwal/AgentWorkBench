@@ -179,7 +179,7 @@ class AgentWorkBenchEnv:
 
             "step_reward": r,
 
-            "total_reward": round(self.total_reward,3),
+            "total_reward": float(self.total_reward),
 
             "completed": len(self.completed)
 
@@ -235,6 +235,25 @@ class AgentWorkBenchEnv:
 
 
         return EnvironmentState(
+
+            total_tasks=len(self.tasks),
+
+            completed_count=len(self.completed),
+
+            steps_taken=self.current_step,
+
+            mistakes=self.mistakes,
+
+            score=self.safe_reward(score),
+
+            avg_reward=self.safe_reward(avg_reward),
+
+            total_reward=self.safe_reward(self.total_reward),
+
+            efficiency=float(efficiency),
+
+            done=self.done
+       )
 
             total_tasks=len(self.tasks),
 
