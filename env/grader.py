@@ -11,35 +11,39 @@ def safe_score(score):
     except:
         return 0.5
 
-    # strict validator protection
+    # strict bounds (never allow edges)
     if score <= 0:
-        score = 0.02
+        return 0.05
 
     if score >= 1:
-        score = 0.98
+        return 0.95
 
-    # avoid edge rounding issues
-    if score < 0.02:
-        score = 0.02
+    # push away from edges
+    if score < 0.05:
+        score = 0.05
 
-    if score > 0.98:
-        score = 0.98
+    if score > 0.95:
+        score = 0.95
 
     return score
 
 
 def grade(expected, output):
 
-    output = output.lower()
+    try:
+        output=str(output).lower()
+    except:
+        output=""
 
-    score = 0.0
+    score = 0.1   # NEVER start at zero (CRITICAL FIX)
 
-    # basic response exists
     if len(output) > 20:
+
         score += 0.3
 
-    # reasoning keywords
+
     keywords = [
+
         "fix",
         "solution",
         "issue",
@@ -48,20 +52,20 @@ def grade(expected, output):
         "implement",
         "resolve",
         "analyze"
+
     ]
 
+
     for word in keywords:
+
         if word in output:
-            score += 0.1
+
+            score += 0.08
 
 
-    # cap score (before safety)
-    if score > 1.0:
-        score = 1.0
-
-
-    # CRITICAL FIX — enforce (0,1)
+    # normalize BEFORE rounding
     score = safe_score(score)
 
 
-    return round(score,2)
+    # NEVER round to 2 decimals (CRITICAL FIX)
+    return float(score)
