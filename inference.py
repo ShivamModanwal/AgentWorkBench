@@ -196,3 +196,8 @@ if __name__ == "__main__":
     print("[END] run_complete", flush=True)
 
     sys.stdout.flush()
+
+if __name__ == "__main__":
+
+    main()
+
