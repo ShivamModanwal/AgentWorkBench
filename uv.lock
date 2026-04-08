@@ -1,0 +1,13 @@
+version = 1
+
+[[package]]
+name = "fastapi"
+
+[[package]]
+name = "uvicorn"
+
+[[package]]
+name = "pydantic"
+
+[[package]]
+name = "jinja2"
