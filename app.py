@@ -41,19 +41,9 @@ def run_selected_task(task_id:str):
 
         "description":task.description,
 
-<<<<<<< HEAD
-        "agent_output":result["agent_output"],
-
-        "reward":result["reward"],
-
-        "runtime":result["runtime"],
-
-        "status":result["status"]
-=======
         "reward":float(score),
 
         "status":"completed"
->>>>>>> 1633981 (Initial commit)
 
     }
 
@@ -64,31 +54,20 @@ def run_selected_task(task_id:str):
 
 def run_all_tasks():
 
-<<<<<<< HEAD
-    results = []
-=======
     outputs=[]
 
     total=0
->>>>>>> 1633981 (Initial commit)
 
 
-    for i in range(len(TASKS)):
+    for task in TASKS:
 
-<<<<<<< HEAD
-        result = run_selected_task(i)
-=======
         score=run_task(task)
 
         score=float(score)
 
         total+=score
->>>>>>> 1633981 (Initial commit)
 
 
-<<<<<<< HEAD
-        results.append(result)
-=======
         outputs.append({
 
             "task":task.title,
@@ -98,7 +77,6 @@ def run_all_tasks():
             "status":"completed"
 
         })
->>>>>>> 1633981 (Initial commit)
 
 
     if len(TASKS)==0:
@@ -112,7 +90,7 @@ def run_all_tasks():
 
     return {
 
-        "results":results,
+        "results":outputs,
 
         "average_score":round(avg,3)
 
@@ -120,11 +98,7 @@ def run_all_tasks():
 
 
 # =========================
-<<<<<<< HEAD
-# Health check
-=======
 # Health check (Docker needs this)
->>>>>>> 1633981 (Initial commit)
 # =========================
 
 def health():

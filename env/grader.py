@@ -7,13 +7,6 @@ Ensures deterministic evaluation.
 def safe_score(score):
 
     try:
-<<<<<<< HEAD
-        score=float(score)
-    except:
-        return 0.5
-
-    # strict bounds (never allow edges)
-=======
         score = float(score)
 
     except:
@@ -21,45 +14,19 @@ def safe_score(score):
 
 
     # Hard clamp inside (0,1)
->>>>>>> 1633981 (Initial commit)
     if score <= 0:
         return 0.05
 
     if score >= 1:
         return 0.95
 
-<<<<<<< HEAD
-    # push away from edges
-    if score < 0.05:
-        score = 0.05
-
-    if score > 0.95:
-        score = 0.95
-=======
 
     # push away from edges
     score = max(0.05, min(0.95, score))
->>>>>>> 1633981 (Initial commit)
 
     return score
 
 
-<<<<<<< HEAD
-def grade(expected, output):
-
-    try:
-        output=str(output).lower()
-    except:
-        output=""
-
-    score = 0.1   # NEVER start at zero (CRITICAL FIX)
-
-    if len(output) > 20:
-
-        score += 0.3
-
-
-=======
 
 def grade(expected, output):
 
@@ -80,7 +47,6 @@ def grade(expected, output):
 
 
     # keyword reward
->>>>>>> 1633981 (Initial commit)
     keywords = [
 
         "fix",
@@ -95,21 +61,6 @@ def grade(expected, output):
     ]
 
 
-<<<<<<< HEAD
-    for word in keywords:
-
-        if word in output:
-
-            score += 0.08
-
-
-    # normalize BEFORE rounding
-    score = safe_score(score)
-
-
-    # NEVER round to 2 decimals (CRITICAL FIX)
-    return float(score)
-=======
     keyword_hits = 0
 
     for word in keywords:
@@ -132,4 +83,3 @@ def grade(expected, output):
 
     # NEVER round (important)
     return float(score)
->>>>>>> 1633981 (Initial commit)

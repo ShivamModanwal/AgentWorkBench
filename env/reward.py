@@ -8,25 +8,6 @@ from .models import TaskDifficulty
 def normalize_reward(r):
 
     try:
-<<<<<<< HEAD
-        r=float(r)
-    except:
-        return 0.5
-
-    # strict validator safety
-    if r <= 0:
-        r = 0.02
-
-    if r >= 1:
-        r = 0.98
-
-    # avoid edge values
-    if r < 0.02:
-        r = 0.02
-
-    if r > 0.98:
-        r = 0.98
-=======
         r = float(r)
 
     except:
@@ -35,15 +16,11 @@ def normalize_reward(r):
 
     # hard clamp strictly inside (0,1)
     r = max(0.02, min(0.98, r))
->>>>>>> 1633981 (Initial commit)
 
     return r
 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 1633981 (Initial commit)
 def compute_reward(task, action):
 
     # NEVER start from zero (important)
@@ -130,21 +107,6 @@ def compute_reward(task, action):
                 r += 0.2
 
 
-<<<<<<< HEAD
-        # prevent negative values
-        if r < 0:
-
-            r = 0.02
-
-
-        # prevent upper bound
-        if r >= 1:
-
-            r = 0.98
-
-
-        # FINAL CRITICAL FIX
-=======
         # upper protection (important)
         if r >= 1:
 
@@ -158,7 +120,6 @@ def compute_reward(task, action):
 
 
         # final normalization
->>>>>>> 1633981 (Initial commit)
         r = normalize_reward(r)
 
 
@@ -169,8 +130,4 @@ def compute_reward(task, action):
         r = 0.5
 
 
-<<<<<<< HEAD
     return float(r)
-=======
-    return float(r)
->>>>>>> 1633981 (Initial commit)

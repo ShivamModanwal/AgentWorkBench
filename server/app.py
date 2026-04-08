@@ -214,31 +214,17 @@ def api_run_all():
 
     result=run_all_tasks()
 
-<<<<<<< HEAD:server/app.py
-    return result 
-
-import uvicorn
-
-=======
     return result
 
 
 # =========================
 # Main
 # =========================
->>>>>>> 1633981 (Initial commit):api/server.py
 
 def main():
 
     uvicorn.run(
 
-<<<<<<< HEAD:server/app.py
-        "server.app:app",
-
-        host="0.0.0.0",
-
-        port=7860
-=======
         "server:app",
 
         host="0.0.0.0",
@@ -246,17 +232,10 @@ def main():
         port=7860,
 
         reload=False
->>>>>>> 1633981 (Initial commit):api/server.py
 
     )
 
 
-<<<<<<< HEAD:server/app.py
-if __name__ == "__main__":
-
-    main()
-=======
 if __name__=="__main__":
 
     main()
->>>>>>> 1633981 (Initial commit):api/server.py
