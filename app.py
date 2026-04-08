@@ -14,17 +14,17 @@ def run_selected_task(task_id:int):
 
     return {
 
-        "task": task.title,
+        "task":task.title,
 
-        "description": task.description,
+        "description":task.description,
 
-        "agent_output": result["agent_output"],
+        "agent_output":result["agent_output"],
 
-        "reward": result["reward"],
+        "reward":result["reward"],
 
-        "runtime": result["runtime"],
+        "runtime":result["runtime"],
 
-        "status": result["status"]
+        "status":result["status"]
 
     }
 
@@ -35,31 +35,23 @@ def run_selected_task(task_id:int):
 
 def run_all_tasks():
 
-    outputs = []
+    results = []
 
     total = 0
 
-    for task in TASKS:
+    for i in range(len(TASKS)):
 
-        result = run_task(task)
+        result = run_selected_task(i)
 
         total += result["reward"]
 
-        outputs.append({
-
-            "task":task.title,
-
-            "reward":result["reward"],
-
-            "status":result["status"]
-
-        })
+        results.append(result)
 
     avg = total / len(TASKS)
 
     return {
 
-        "results":outputs,
+        "results":results,
 
         "average_score":round(avg,3)
 
@@ -67,7 +59,7 @@ def run_all_tasks():
 
 
 # =========================
-# Health check (important for Docker)
+# Health check
 # =========================
 
 def health():
