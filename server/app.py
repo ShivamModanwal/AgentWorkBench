@@ -153,4 +153,24 @@ def api_run_all():
 
     result = run_all_tasks()
 
-    return result  
+    return result 
+
+import uvicorn
+
+
+def main():
+
+    uvicorn.run(
+
+        "server.app:app",
+
+        host="0.0.0.0",
+
+        port=7860
+
+    )
+
+
+if __name__ == "__main__":
+
+    main()
