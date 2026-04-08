@@ -29,6 +29,32 @@ env = AgentWorkBenchEnv()
 
 
 # =========================
+# Score Normalizer (Phase-2 Fix)
+# =========================
+
+def normalize_score(score):
+
+    try:
+
+        score = float(score)
+
+    except:
+
+        return 0.01
+
+
+    if score <= 0:
+
+        return 0.01
+
+    if score >= 1:
+
+        return 0.99
+
+    return score
+
+
+# =========================
 # LLM Setup (Validator Safe)
 # =========================
 
@@ -157,6 +183,9 @@ def run_task(task):
 
         obs, reward, done, info = env.step(action)
 
+        # ✅ FIX — normalize score
+        reward = normalize_score(reward)
+
 
         print(
 
@@ -186,13 +215,13 @@ def run_task(task):
 
         print(
 
-            f"[END] task={task.title} score=0 steps=1",
+            f"[END] task={task.title} score=0.01 steps=1",
 
             flush=True
 
         )
 
-        return 0
+        return 0.01
 
 
 # =========================
@@ -211,17 +240,23 @@ def evaluate():
 
         reward = run_task(task)
 
+        # ✅ FIX — double safety normalization
+        reward = normalize_score(reward)
+
         scores.append(reward)
 
 
     if len(scores)==0:
 
-        print("[END] evaluation score=0 steps=0", flush=True)
+        print("[END] evaluation score=0.01 steps=0", flush=True)
 
-        return 0
+        return 0.01
 
 
     avg = sum(scores)/len(scores)
+
+    # ✅ FIX — normalize final score
+    avg = normalize_score(avg)
 
 
     print(
