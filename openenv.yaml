@@ -1,111 +1,67 @@
 name: AgentWorkBench
-
 version: 1.0.0
-
 description: >
   AgentWorkBench is a real-world OpenEnv environment designed to evaluate
   AI agents on workplace task management including task classification,
   priority assignment and workflow scheduling with deterministic grading.
-
 author:
-
   - Shivam Modanwal (B.Tech IT, 3rd Year)
-
   - Mohd Salim Naeem (B.Tech AIML, 3rd Year)
-
 environment:
-
   type: openenv
-
-  entry_point: api.server:app   
-
+  entry_point: api.server:app     
   observation_type: typed
-
   action_type: typed
-
   reward_type: float
-
 tasks:
-
   - id: task_easy
     name: Task Classification
     difficulty: easy
     objective: Classify engineering tasks correctly
-    reward_range: [0.0,1.0]
-
+    reward_range: [0.01, 0.99]
   - id: task_medium
     name: Priority Assignment
     difficulty: medium
     objective: Classify tasks and assign correct priority
-    reward_range: [0.0,1.0]
-
+    reward_range: [0.01, 0.99]
   - id: task_hard
     name: Workflow Optimization
     difficulty: hard
     objective: Classify, prioritize and schedule tasks efficiently
-    reward_range: [0.0,1.0]
-
+    reward_range: [0.01, 0.99]
 evaluation:
-
   deterministic: true
-
   grading: normalized
-
   reward_range:
-
-    min: 0.0
-
-    max: 1.0
-
+    min: 0.01
+    max: 0.99
 baseline:
-
   inference_script: inference.py
-
   description: Deterministic rule-based baseline agent
-
   reproducible: true
-
 api:
-
   endpoints:
-
     - /reset
-    - /step      
-    - /state     
+    - /step          
+    - /state         
     - /tasks
     - /grader
     - /baseline
-
 infrastructure:
-
   docker_required: true
-
   runtime_limit_minutes: 20
-
   cpu_only: true
-
 requirements:
-
   python: ">=3.9"
-
   dependencies:
-
     - pydantic
-
     - fastapi
-
     - uvicorn
-
     - openai
-
 compliance:
-
   openenv_spec: true
-
   typed_models: true
-
   reset_step_state_interface: true
-
 notes: >
   This environment focuses on realistic AI workplace evaluation rather than
   synthetic tasks. It emphasizes decision correctness, workflow efficiency
