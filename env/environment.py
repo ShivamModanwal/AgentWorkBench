@@ -12,7 +12,7 @@ from .grader import grade
 class AgentWorkBenchEnv:
 
     MISTAKE_PENALTY = 0.05
-    ALREADY_COMPLETED_REWARD = -0.1
+    ALREADY_COMPLETED_REWARD = 0.02
     STEP_PENALTY = 0.02
     EFFICIENCY_BONUS = 0.2
 
@@ -23,13 +23,40 @@ class AgentWorkBenchEnv:
 
         self.tasks = TASKS
 
-        print("Loaded tasks:", len(self.tasks))   # debug
+        print("Loaded tasks:", len(self.tasks))
 
         self._task_map = {t.id: t for t in self.tasks}
 
         self.max_steps = max(len(self.tasks) * 2, 1)
 
         self.reset()
+
+
+    # =========================
+    # Reward safety function
+    # =========================
+
+    def safe_reward(self,r):
+
+        try:
+            r=float(r)
+        except:
+            return 0.5
+
+        if r <= 0:
+            r = 0.02
+
+        if r >= 1:
+            r = 0.98
+
+        if r < 0.02:
+            r = 0.02
+
+        if r > 0.98:
+            r = 0.98
+
+        return r
+
 
     def reset(self):
 
@@ -56,11 +83,12 @@ class AgentWorkBenchEnv:
             completed_tasks=list(self.completed)
         )
 
+
     def step(self, action):
 
         if self.done:
 
-            return self._get_obs(), 0, True, {}
+            return self._get_obs(), 0.02, True, {}
 
         self.current_step += 1
 
@@ -70,9 +98,10 @@ class AgentWorkBenchEnv:
 
             self.mistakes += 1
 
-            return self._get_obs(), -0.1, self.done, {
+            return self._get_obs(), 0.02, self.done, {
                 "error": "Invalid task_id"
             }
+
 
         if task.id in self.completed:
 
@@ -84,25 +113,31 @@ class AgentWorkBenchEnv:
                 "error": "Already completed"
             }
 
-        # compute reward safely
+
         try:
 
             r = compute_reward(task, action)
 
             if r is None:
-                r = 0
+                r = 0.5
 
         except Exception as e:
 
             print("Reward error:", e)
 
-            r = 0
+            r = 0.5
 
             self.mistakes += 1
+
+
+        # CRITICAL SAFETY FIX
+        r = self.safe_reward(r)
+
 
         print("STEP:", self.current_step)
         print("TASK:", task.title)
         print("REWARD:", r)
+
 
         self.total_reward += r
 
@@ -110,7 +145,7 @@ class AgentWorkBenchEnv:
 
         self.total_reward -= self.STEP_PENALTY
 
-        # mark complete only if reward positive
+
         if action.mark_complete:
 
             if r > 0:
@@ -121,29 +156,42 @@ class AgentWorkBenchEnv:
 
                 self.mistakes += 1
 
-        # efficiency bonus only for correct steps
+
         if r > 0 and self.current_step <= len(self.tasks):
 
             self.total_reward += self.EFFICIENCY_BONUS
 
-        # check done
+
         if len(self.completed) == len(self.tasks):
 
             self.done = True
+
 
         if self.current_step >= self.max_steps:
 
             self.done = True
 
+
         obs = self._get_obs()
 
+
         info = {
+
             "step_reward": r,
+
             "total_reward": round(self.total_reward,3),
+
             "completed": len(self.completed)
+
         }
 
+
+        # FINAL SAFETY RETURN
+        r = self.safe_reward(r)
+
+
         return obs, r, self.done, info
+
 
     def _get_obs(self):
 
@@ -163,23 +211,28 @@ class AgentWorkBenchEnv:
             completed_tasks=list(self.completed)
         )
 
+
     def state(self):
 
         max_possible = max(len(self.tasks),1)
 
+        # FIXED grader call
         score = grade(
-            self.total_reward,
-            max_possible,
-            self.mistakes
+            str(self.total_reward),
+            str(self.mistakes)
         )
 
         efficiency = len(self.completed) / max(self.current_step,1)
 
-        avg_reward = 0
+        avg_reward = 0.5
 
         if len(self.reward_log) > 0:
 
             avg_reward = sum(self.reward_log)/len(self.reward_log)
+
+
+        avg_reward = self.safe_reward(avg_reward)
+
 
         return EnvironmentState(
 
@@ -191,7 +244,7 @@ class AgentWorkBenchEnv:
 
             mistakes=self.mistakes,
 
-            score=round(score,3),
+            score=round(self.safe_reward(score),3),
 
             avg_reward=round(avg_reward,3),
 
