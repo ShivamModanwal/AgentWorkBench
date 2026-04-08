@@ -1,87 +1,133 @@
 """
-TaskMind AI Agent - HTTP-based inference script
+TaskMind AI Agent - Phase 2 compliant inference script
 """
 
 AGENT_NAME = "TaskMind AI"
 AGENT_VERSION = "1.0"
 AGENT_MODE = "Autonomous Task Classification Agent"
 
+import os
 import time
 import sys
+
+from openai import OpenAI
 
 from env.environment import AgentWorkBenchEnv
 from env.tasks import TASKS
 from env.models import Action, TaskCategory, TaskPriority
 
 
+# =========================
+# Environment
+# =========================
+
 env = AgentWorkBenchEnv()
 
 
 # =========================
-# Intelligent Task Analyzer
+# LLM Client (REQUIRED)
+# =========================
+
+client = OpenAI(
+
+    base_url=os.environ["API_BASE_URL"],
+
+    api_key=os.environ["API_KEY"]
+
+)
+
+MODEL = os.environ.get("MODEL_NAME","gpt-4o-mini")
+
+
+# =========================
+# LLM Task Analyzer
 # =========================
 
 def analyze_task(description):
 
-    text = description.lower()
+    try:
 
-    reasoning = []
-    confidence = 0.7
+        response = client.chat.completions.create(
 
-    if any(word in text for word in ["login","bug","error","fail"]):
+            model=MODEL,
 
-        category = TaskCategory.BUG
-        priority = TaskPriority.CRITICAL
+            messages=[
 
-        confidence = 0.9
+                {
+                    "role":"system",
 
-    elif any(word in text for word in ["feature","ui","add"]):
+                    "content":
+                    """Classify this software engineering task.
 
-        category = TaskCategory.FEATURE
-        priority = TaskPriority.MEDIUM
+Return only:
+CATEGORY: BUG | FEATURE | DOCUMENTATION | DEVOPS
+PRIORITY: CRITICAL | MEDIUM | LOW
+"""
+                },
 
-        confidence = 0.85
+                {
+                    "role":"user",
 
-    elif any(word in text for word in ["doc","documentation","api"]):
+                    "content":description
+                }
 
-        category = TaskCategory.DOCUMENTATION
-        priority = TaskPriority.LOW
+            ],
 
-        confidence = 0.8
+            temperature=0
 
-    elif any(word in text for word in ["production","outage","critical"]):
-
-        category = TaskCategory.DEVOPS
-        priority = TaskPriority.CRITICAL
-
-        confidence = 0.95
-
-    else:
-
-        category = TaskCategory.FEATURE
-        priority = TaskPriority.MEDIUM
-
-        confidence = 0.6
+        )
 
 
-    return category, priority, confidence
+        text = response.choices[0].message.content.lower()
+
+
+        # category detection
+        if "bug" in text:
+
+            category = TaskCategory.BUG
+            priority = TaskPriority.CRITICAL
+
+        elif "feature" in text:
+
+            category = TaskCategory.FEATURE
+            priority = TaskPriority.MEDIUM
+
+        elif "documentation" in text:
+
+            category = TaskCategory.DOCUMENTATION
+            priority = TaskPriority.LOW
+
+        else:
+
+            category = TaskCategory.DEVOPS
+            priority = TaskPriority.CRITICAL
+
+
+        return category, priority
+
+
+    except Exception:
+
+        # fallback (still valid)
+
+        return TaskCategory.FEATURE, TaskPriority.MEDIUM
 
 
 # =========================
-# Agent Execution
+# Task Runner
 # =========================
 
 def run_task(task):
 
     start = time.time()
 
-    try:
+    print(f"[START] task={task.title}", flush=True)
 
-        print(f"[START] task={task.title}", flush=True)
+    try:
 
         env.reset()
 
-        category, priority, confidence = analyze_task(task.description)
+        category, priority = analyze_task(task.description)
 
 
         action = Action(
@@ -92,7 +138,7 @@ def run_task(task):
 
             predicted_priority=priority,
 
-            scheduled_position=getattr(task,"schedule_position",1),
+            scheduled_position=1,
 
             mark_complete=True
 
@@ -103,8 +149,11 @@ def run_task(task):
 
 
         print(
+
             f"[STEP] task={task.title} step=1 reward={round(reward,3)}",
+
             flush=True
+
         )
 
 
@@ -112,44 +161,32 @@ def run_task(task):
 
 
         print(
+
             f"[END] task={task.title} score={round(reward,3)} steps=1",
+
             flush=True
+
         )
 
 
-        return {
-
-            "task":task.title,
-
-            "reward":reward,
-
-            "runtime":runtime,
-
-            "status":"SUCCESS" if reward >= 0.5 else "FAILED"
-
-        }
+        return reward
 
 
     except Exception:
 
         print(
+
             f"[END] task={task.title} score=0 steps=1",
+
             flush=True
+
         )
 
-        return {
-
-            "task":task.title,
-
-            "reward":0,
-
-            "status":"FAILED"
-
-        }
+        return 0
 
 
 # =========================
-# Evaluation Runner
+# Evaluation
 # =========================
 
 def evaluate():
@@ -162,12 +199,12 @@ def evaluate():
 
     for task in TASKS:
 
-        result = run_task(task)
+        reward = run_task(task)
 
-        scores.append(result["reward"])
+        scores.append(reward)
 
 
-    if len(scores) == 0:
+    if len(scores)==0:
 
         print("[END] evaluation score=0 steps=0", flush=True)
 
@@ -178,11 +215,16 @@ def evaluate():
 
 
     print(
+
         f"[END] evaluation score={round(avg,3)} steps={len(TASKS)}",
+
         flush=True
+
     )
 
+
     return avg
+
 
 # =========================
 # Main Entrypoint
@@ -190,11 +232,11 @@ def evaluate():
 
 def main():
 
-    print("[START] evaluation", flush=True)
-
     evaluate()
 
-    print("[END] evaluation_complete", flush=True)
+    print("[END] run_complete", flush=True)
+
+    sys.stdout.flush()
 
 
 if __name__ == "__main__":
