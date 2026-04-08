@@ -8,6 +8,7 @@ from .models import TaskDifficulty
 def normalize_reward(r):
 
     try:
+<<<<<<< HEAD
         r=float(r)
     except:
         return 0.5
@@ -25,13 +26,28 @@ def normalize_reward(r):
 
     if r > 0.98:
         r = 0.98
+=======
+        r = float(r)
+
+    except:
+        return 0.5
+
+
+    # hard clamp strictly inside (0,1)
+    r = max(0.02, min(0.98, r))
+>>>>>>> 1633981 (Initial commit)
 
     return r
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1633981 (Initial commit)
 def compute_reward(task, action):
 
-    r = 0.0
+    # NEVER start from zero (important)
+    r = 0.05
 
     try:
 
@@ -40,15 +56,17 @@ def compute_reward(task, action):
 
             if action.predicted_category == task.true_category:
 
-                r += 0.8
+                r += 0.6
 
             else:
 
-                r -= 0.1
+                r += 0.05
+
 
             if action.mark_complete:
 
-                r += 0.2
+                r += 0.25
+
 
 
         # MEDIUM → classification + priority
@@ -56,11 +74,12 @@ def compute_reward(task, action):
 
             if action.predicted_category == task.true_category:
 
-                r += 0.5
+                r += 0.4
 
             else:
 
-                r -= 0.1
+                r += 0.05
+
 
             if action.predicted_priority == task.true_priority:
 
@@ -68,11 +87,13 @@ def compute_reward(task, action):
 
             else:
 
-                r -= 0.05
+                r += 0.05
+
 
             if action.mark_complete:
 
                 r += 0.2
+
 
 
         # HARD → classification + priority + scheduling
@@ -80,32 +101,36 @@ def compute_reward(task, action):
 
             if action.predicted_category == task.true_category:
 
-                r += 0.4
+                r += 0.35
 
             else:
 
-                r -= 0.1
+                r += 0.05
+
 
             if action.predicted_priority == task.true_priority:
 
-                r += 0.3
+                r += 0.25
 
             else:
 
-                r -= 0.05
+                r += 0.05
 
-            # safe scheduling check
+
+            # scheduling safety
             if hasattr(action, "scheduled_position"):
 
                 if action.scheduled_position == task.schedule_position:
 
                     r += 0.2
 
+
             if action.mark_complete:
 
                 r += 0.2
 
 
+<<<<<<< HEAD
         # prevent negative values
         if r < 0:
 
@@ -119,6 +144,21 @@ def compute_reward(task, action):
 
 
         # FINAL CRITICAL FIX
+=======
+        # upper protection (important)
+        if r >= 1:
+
+            r = 0.98
+
+
+        # lower protection
+        if r <= 0:
+
+            r = 0.02
+
+
+        # final normalization
+>>>>>>> 1633981 (Initial commit)
         r = normalize_reward(r)
 
 
@@ -129,4 +169,8 @@ def compute_reward(task, action):
         r = 0.5
 
 
+<<<<<<< HEAD
     return float(r)
+=======
+    return float(r)
+>>>>>>> 1633981 (Initial commit)

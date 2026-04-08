@@ -8,7 +8,7 @@ def load_tasks():
         Task(
             id="1",
             title="Fix login bug",
-            description="Users unable to login",
+            description="Users unable to login due to authentication error",
             difficulty=TaskDifficulty.EASY,
             estimated_steps=2,
             deadline=3,
@@ -20,7 +20,7 @@ def load_tasks():
         Task(
             id="2",
             title="Add dark mode",
-            description="UI feature request",
+            description="Implement UI dark mode feature",
             difficulty=TaskDifficulty.MEDIUM,
             estimated_steps=5,
             deadline=10,
@@ -32,7 +32,7 @@ def load_tasks():
         Task(
             id="3",
             title="Update docs",
-            description="API documentation update",
+            description="Update API documentation",
             difficulty=TaskDifficulty.EASY,
             estimated_steps=2,
             deadline=8,
@@ -44,7 +44,7 @@ def load_tasks():
         Task(
             id="4",
             title="Handle production outage",
-            description="Critical production failure",
+            description="Resolve critical production failure",
             difficulty=TaskDifficulty.HARD,
             estimated_steps=6,
             deadline=2,
@@ -55,8 +55,11 @@ def load_tasks():
 
     ]
 
+    # deterministic ordering (important for evaluation)
+    tasks = sorted(tasks, key=lambda x: x.id)
+
     return tasks
 
 
-# THIS FIXES YOUR IMPORT ERROR
+# Global task list (used by environment)
 TASKS = load_tasks()
