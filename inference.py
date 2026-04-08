@@ -1,24 +1,18 @@
 """
 TaskMind AI Agent - HTTP-based inference script
-Calls the AgentWorkBench HTTP API (required for OpenEnv compliance)
 """
+
 AGENT_NAME = "TaskMind AI"
 AGENT_VERSION = "1.0"
 AGENT_MODE = "Autonomous Task Classification Agent"
 
-
-import os
 import time
-from typing import Dict, List
+import sys
 
 from env.environment import AgentWorkBenchEnv
 from env.tasks import TASKS
 from env.models import Action, TaskCategory, TaskPriority
 
-
-# =========================
-# Environment
-# =========================
 
 env = AgentWorkBenchEnv()
 
@@ -34,13 +28,10 @@ def analyze_task(description):
     reasoning = []
     confidence = 0.7
 
-    # category detection
     if any(word in text for word in ["login","bug","error","fail"]):
 
         category = TaskCategory.BUG
         priority = TaskPriority.CRITICAL
-
-        reasoning.append("Detected failure related keywords")
 
         confidence = 0.9
 
@@ -49,16 +40,12 @@ def analyze_task(description):
         category = TaskCategory.FEATURE
         priority = TaskPriority.MEDIUM
 
-        reasoning.append("Detected feature request pattern")
-
         confidence = 0.85
 
     elif any(word in text for word in ["doc","documentation","api"]):
 
         category = TaskCategory.DOCUMENTATION
         priority = TaskPriority.LOW
-
-        reasoning.append("Detected documentation keywords")
 
         confidence = 0.8
 
@@ -67,8 +54,6 @@ def analyze_task(description):
         category = TaskCategory.DEVOPS
         priority = TaskPriority.CRITICAL
 
-        reasoning.append("Detected production severity indicators")
-
         confidence = 0.95
 
     else:
@@ -76,28 +61,10 @@ def analyze_task(description):
         category = TaskCategory.FEATURE
         priority = TaskPriority.MEDIUM
 
-        reasoning.append("Fallback classification")
-
         confidence = 0.6
 
 
-    return category, priority, reasoning, confidence
-
-
-# =========================
-# Agent confidence evaluator
-# =========================
-
-def agent_confidence_score(reward):
-
-    if reward >= 0.9:
-        return "High"
-
-    elif reward >= 0.6:
-        return "Medium"
-
-    else:
-        return "Low"
+    return category, priority, confidence
 
 
 # =========================
@@ -109,24 +76,25 @@ def run_task(task):
     start = time.time()
 
     try:
+
+        print(f"[START] task={task.title}", flush=True)
+
         env.reset()
 
-        # AI analysis simulation
-        category, priority, reasoning, confidence = analyze_task(task.description)
+        category, priority, confidence = analyze_task(task.description)
 
 
         action = Action(
 
             task_id=task.id,
- 
+
             predicted_category=category,
 
             predicted_priority=priority,
 
             scheduled_position=getattr(task,"schedule_position",1),
 
-            mark_complete=True,
-
+            mark_complete=True
 
         )
 
@@ -134,73 +102,48 @@ def run_task(task):
         obs, reward, done, info = env.step(action)
 
 
+        print(
+            f"[STEP] task={task.title} step=1 reward={round(reward,3)}",
+            flush=True
+        )
+
+
         runtime = round(time.time()-start,2)
 
 
-        explanation = f"""
-AI Task Analysis Report
-Task: {task.title}
-Understanding:
-{task.description}
-Reasoning Steps:
-{chr(10).join(reasoning)}
-Predictions:
-Category → {category}
-Priority → {priority}
-Confidence Score:
-{round(confidence*100)}%
-Performance Metrics:
-Decision Confidence: {round(confidence*100)}%
-Efficiency Score: {round(reward,2)}
-Execution Steps: 1
-Confidence Level:
-{agent_confidence_score(reward)}
-Decision:
-Task processed and marked complete.
-"""
+        print(
+            f"[END] task={task.title} score={round(reward,3)} steps=1",
+            flush=True
+        )
 
 
         return {
 
-            "task": task.title,
+            "task":task.title,
 
-            "agent_output": explanation,
+            "reward":reward,
 
-            "reward": reward,
+            "runtime":runtime,
 
-            "runtime": runtime,
-
-            "status": "SUCCESS" if reward >= 0.5 else "FAILED",
-
-            "metrics": {
-
-                "decision_confidence": round(confidence,2),
-
-                "steps_used": 1,
-
-                "efficiency_score": round(reward,2),
-
-                "completion_rate": 1.0 if reward > 0 else 0.0
-
-            }
+            "status":"SUCCESS" if reward >= 0.5 else "FAILED"
 
         }
 
-    except Exception as e:
+
+    except Exception:
+
+        print(
+            f"[END] task={task.title} score=0 steps=1",
+            flush=True
+        )
 
         return {
 
-            "task": task.title,
+            "task":task.title,
 
-            "agent_output": "Agent execution failed",
+            "reward":0,
 
-            "reward": 0,
-
-            "runtime": 0,
-
-            "status": "FAILED",
-
-            "error": str(e)
+            "status":"FAILED"
 
         }
 
@@ -211,22 +154,22 @@ Task processed and marked complete.
 
 def evaluate():
 
+    print("[START] evaluation", flush=True)
+
     scores = []
 
-    print("\nBenchmark Evaluation Started\n")
-
-    env.reset()   # FIX: reset once
+    env.reset()
 
     for task in TASKS:
 
         result = run_task(task)
 
-        print(task.title,"→",result["reward"])
-
         scores.append(result["reward"])
 
 
     if len(scores) == 0:
+
+        print("[END] evaluation score=0 steps=0", flush=True)
 
         return 0
 
@@ -234,7 +177,10 @@ def evaluate():
     avg = sum(scores)/len(scores)
 
 
-    print("\nFinal Score:",round(avg,3))
+    print(
+        f"[END] evaluation score={round(avg,3)} steps={len(TASKS)}",
+        flush=True
+    )
 
     return avg
 
@@ -247,4 +193,6 @@ if __name__ == "__main__":
 
     evaluate()
 
-    print("\nAgent Evaluation Complete")
+    print("[END] run_complete", flush=True)
+
+    sys.stdout.flush()
