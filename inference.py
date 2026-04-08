@@ -184,20 +184,19 @@ def evaluate():
 
     return avg
 
-
 # =========================
-# Main
+# Main Entrypoint
 # =========================
 
-if __name__ == "__main__":
+def main():
+
+    print("[START] evaluation", flush=True)
 
     evaluate()
 
-    print("[END] run_complete", flush=True)
+    print("[END] evaluation_complete", flush=True)
 
-    sys.stdout.flush()
 
 if __name__ == "__main__":
 
     main()
-
