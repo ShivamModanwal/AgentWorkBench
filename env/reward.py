@@ -129,4 +129,4 @@ def compute_reward(task, action):
         r = 0.5
 
 
-    return round(r,3)
+    return float(r)
