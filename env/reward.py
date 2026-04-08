@@ -5,6 +5,30 @@ Reward logic for task evaluation
 from .models import TaskDifficulty
 
 
+def normalize_reward(r):
+
+    try:
+        r=float(r)
+    except:
+        return 0.5
+
+    # strict validator safety
+    if r <= 0:
+        r = 0.02
+
+    if r >= 1:
+        r = 0.98
+
+    # avoid edge values
+    if r < 0.02:
+        r = 0.02
+
+    if r > 0.98:
+        r = 0.98
+
+    return r
+
+
 def compute_reward(task, action):
 
     r = 0.0
@@ -82,20 +106,27 @@ def compute_reward(task, action):
                 r += 0.2
 
 
-        # prevent negative collapse
+        # prevent negative values
         if r < 0:
 
-            r = -0.2
+            r = 0.02
 
-        # normalize reward range
-        if r > 1:
 
-            r = 1
+        # prevent upper bound
+        if r >= 1:
+
+            r = 0.98
+
+
+        # FINAL CRITICAL FIX
+        r = normalize_reward(r)
+
 
     except Exception as e:
 
         print("Reward computation error:", e)
 
-        r = 0
+        r = 0.5
+
 
     return round(r,3)
