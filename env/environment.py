@@ -21,8 +21,6 @@ class AgentWorkBenchEnv:
 
         self.tasks = TASKS
 
-        print("Loaded tasks:", len(self.tasks))
-
         self._task_map = {t.id:t for t in self.tasks}
 
         self.max_steps = max(len(self.tasks)*2,1)
