@@ -201,7 +201,7 @@ def run_task(task):
 
         print(
 
-            f"[STEP] task={task.title} step=1 reward={round(reward,3)}",
+            f"[STEP] task={task.title} reward={round(reward,3)}",
 
             flush=True
 
@@ -210,7 +210,7 @@ def run_task(task):
 
         print(
 
-            f"[END] task={task.title} score={round(task_score,3)} steps=1",
+            f"[END] task={task.title} score={round(task_score,3)}",
 
             flush=True
 
@@ -224,7 +224,7 @@ def run_task(task):
 
         print(
 
-            f"[END] task={task.title} score=0.5 steps=1",
+            f"[END] task={task.title} score=0.5",
 
             flush=True
 
@@ -260,7 +260,7 @@ def evaluate():
 
     if len(scores)==0:
 
-        print("[END] evaluation score=0.5 steps=0",flush=True)
+        print("[END] evaluation score=0.5",flush=True)
 
         return 0.5
 
@@ -272,7 +272,7 @@ def evaluate():
 
     print(
 
-        f"[END] evaluation score={round(avg,3)} steps={len(scores)}",
+        f"[END] evaluation score={round(avg,3)}",
 
         flush=True
 
