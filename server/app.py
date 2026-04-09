@@ -155,21 +155,11 @@ def api_run_all():
 # =========================
 def main():
     uvicorn.run(
-<<<<<<< HEAD
-        "server:app",
-=======
-
         "server.app:app",
-
->>>>>>> c67467c (Fix OpenEnv score range metadata and app entrypoints)
         host="0.0.0.0",
         port=7860,
         reload=False
     )
 
 if __name__=="__main__":
-<<<<<<< HEAD
-=======
-
->>>>>>> c67467c (Fix OpenEnv score range metadata and app entrypoints)
     main()
