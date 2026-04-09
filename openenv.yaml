@@ -9,13 +9,7 @@ author:
   - Mohd Salim Naeem (B.Tech AIML, 3rd Year)
 environment:
   type: openenv
-<<<<<<< HEAD
-  entry_point: api.server:app     
-=======
-
   entry_point: server.app:app
-
->>>>>>> c67467c (Fix OpenEnv score range metadata and app entrypoints)
   observation_type: typed
   action_type: typed
   reward_type: float
@@ -24,46 +18,23 @@ tasks:
     name: Task Classification
     difficulty: easy
     objective: Classify engineering tasks correctly
-<<<<<<< HEAD
     reward_range: [0.01, 0.99]
-=======
-    reward_range: [0.01,0.99]
-
->>>>>>> c67467c (Fix OpenEnv score range metadata and app entrypoints)
   - id: task_medium
     name: Priority Assignment
     difficulty: medium
     objective: Classify tasks and assign correct priority
-<<<<<<< HEAD
     reward_range: [0.01, 0.99]
-=======
-    reward_range: [0.01,0.99]
-
->>>>>>> c67467c (Fix OpenEnv score range metadata and app entrypoints)
   - id: task_hard
     name: Workflow Optimization
     difficulty: hard
     objective: Classify, prioritize and schedule tasks efficiently
-<<<<<<< HEAD
     reward_range: [0.01, 0.99]
-=======
-    reward_range: [0.01,0.99]
-
->>>>>>> c67467c (Fix OpenEnv score range metadata and app entrypoints)
 evaluation:
   deterministic: true
   grading: normalized
   reward_range:
-<<<<<<< HEAD
     min: 0.01
     max: 0.99
-=======
-
-    min: 0.01
-
-    max: 0.99
-
->>>>>>> c67467c (Fix OpenEnv score range metadata and app entrypoints)
 baseline:
   inference_script: inference.py
   description: Deterministic rule-based baseline agent
@@ -71,8 +42,8 @@ baseline:
 api:
   endpoints:
     - /reset
-    - /step          
-    - /state         
+    - /step
+    - /state
     - /tasks
     - /grader
     - /baseline

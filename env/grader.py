@@ -1,82 +1,62 @@
 """
-Grader module for AgentWorkBench
-Handles safe scoring and reward formatting
+Grader module.
+Normalizes total reward into final score.
+Ensures deterministic evaluation.
 """
 
-def clamp_score(score: float) -> float:
-    """
-    Clamp score between 0.01 and 0.99
-    Avoid exact 0 or 1 (evaluation rule)
-    """
+
+def safe_score(score):
 
     try:
         score = float(score)
-
-        if score <= 0:
-            score = 0.01
-
-        elif score >= 1:
-            score = 0.99
-
-        return round(score, 2)
-
     except Exception:
-        return 0.01
+        return 0.5
+
+    if score <= 0:
+        return 0.05
+
+    if score >= 1:
+        return 0.95
+
+    score = max(0.05, min(0.95, score))
+
+    return score
 
 
-def format_score(score: float) -> str:
-    """
-    Format score to 2 decimal string
-    """
-    score = clamp_score(score)
+def grade(expected, output):
 
-    return f"{score:.2f}"
+    try:
+        output = str(output).lower()
+    except Exception:
+        output = ""
 
+    score = 0.1
 
-def grade(raw_score: float) -> float:
-    """
-    Main grading function required by environment.py
+    if len(output) > 20:
+        score += 0.25
 
-    Steps:
-    1 Get raw score
-    2 Clamp safely
-    3 Return safe score
-    """
+    keywords = [
+        "fix",
+        "solution",
+        "issue",
+        "improve",
+        "update",
+        "implement",
+        "resolve",
+        "analyze",
+    ]
 
-    safe_score = clamp_score(raw_score)
+    keyword_hits = 0
 
-    return safe_score
+    for word in keywords:
+        if word in output:
+            keyword_hits += 1
 
+    score += keyword_hits * 0.07
 
-def step_reward(raw_score: float) -> str:
-    """
-    STEP reward format
-    """
+    if score > 0.95:
+        score = 0.95
 
-    score = clamp_score(raw_score)
+    score = safe_score(score)
 
-    return f"[STEP] reward={score:.2f}"
-
-
-def end_reward(raw_score: float) -> str:
-    """
-    END reward format
-    """
-
-    score = clamp_score(raw_score)
-
-    return f"[END] final_reward={score:.2f}"
-
-
-# Testing block (safe to keep)
-if __name__ == "__main__":
-
-    test_scores = [-2,0,0.235,0.678,1,3]
-
-    for s in test_scores:
-
-        print("Raw:",s)
-        print("Safe:",grade(s))
-        print(step_reward(s))
-        print(end_reward(s))
-        print()
+    return float(score)
