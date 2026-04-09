@@ -14,9 +14,20 @@ env = AgentWorkBenchEnv()
 def clamp_score(val):
     """Ensures no score leaves the API as exactly 0.0 or 1.0"""
     try:
-        return max(0.01, min(0.99, float(val)))
-    except:
+        return max(0.02, min(0.98, float(val)))
+    except Exception:
         return 0.5
+
+
+def clamp_info_scores(info):
+    if not isinstance(info, dict):
+        return {}
+
+    safe_info = dict(info)
+    for key in ["score", "task_score", "step_reward", "total_reward", "reward"]:
+        if key in safe_info:
+            safe_info[key] = clamp_score(safe_info[key])
+    return safe_info
 
 # =========================
 # Home
@@ -50,7 +61,7 @@ def step_env(action:Action):
         "observation":obs.model_dump(),
         "reward": clamp_score(r),  # Guarded
         "done":done,
-        "info":info
+        "info":clamp_info_scores(info)
     }
 
 # =========================
@@ -59,7 +70,11 @@ def step_env(action:Action):
 @app.get("/state")
 def get_state():
     state = env.state()
-    return state.model_dump()
+    state_dict = state.model_dump()
+    for key in ["score", "avg_reward", "total_reward", "efficiency"]:
+        if key in state_dict:
+            state_dict[key] = clamp_score(state_dict[key])
+    return state_dict
 
 # =========================
 # Tasks
@@ -77,7 +92,7 @@ def get_grader():
     state_dict = env.state().model_dump()
     
     # Explicitly guard any score fields in the state dump
-    for key in ["score", "total_reward", "efficiency"]:
+    for key in ["score", "avg_reward", "total_reward", "efficiency"]:
         if key in state_dict:
             state_dict[key] = clamp_score(state_dict[key])
             
@@ -111,13 +126,13 @@ def run_baseline():
             priority=TaskPriority.LOW
         else:
             category=TaskCategory.DEVOPS
-            priority=TaskPriority.MEDIUM
+            priority=TaskPriority.CRITICAL
             
         action=Action(
             task_id=t.id,
             predicted_category=category,
             predicted_priority=priority,
-            scheduled_position=1,
+            scheduled_position=getattr(t, "schedule_position", 1),
             mark_complete=True
         )
         obs,r,done,info = env.step(action)
