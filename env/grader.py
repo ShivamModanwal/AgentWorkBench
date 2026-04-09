@@ -1,85 +1,82 @@
 """
-Grader module.
-Normalizes total reward into final score.
-Ensures deterministic evaluation.
+Grader module for AgentWorkBench
+Handles safe scoring and reward formatting
 """
 
-def safe_score(score):
+def clamp_score(score: float) -> float:
+    """
+    Clamp score between 0.01 and 0.99
+    Avoid exact 0 or 1 (evaluation rule)
+    """
 
     try:
         score = float(score)
 
-    except:
-        return 0.5
+        if score <= 0:
+            score = 0.01
+
+        elif score >= 1:
+            score = 0.99
+
+        return round(score, 2)
+
+    except Exception:
+        return 0.01
 
 
-    # Hard clamp inside (0,1)
-    if score <= 0:
-        return 0.05
+def format_score(score: float) -> str:
+    """
+    Format score to 2 decimal string
+    """
+    score = clamp_score(score)
 
-    if score >= 1:
-        return 0.95
-
-
-    # push away from edges
-    score = max(0.05, min(0.95, score))
-
-    return score
+    return f"{score:.2f}"
 
 
+def grade(raw_score: float) -> float:
+    """
+    Main grading function required by environment.py
 
-def grade(expected, output):
+    Steps:
+    1 Get raw score
+    2 Clamp safely
+    3 Return safe score
+    """
 
-    try:
-        output = str(output).lower()
+    safe_score = clamp_score(raw_score)
 
-    except:
-        output = ""
-
-
-    # NEVER start from zero
-    score = 0.1
-
-
-    # length reward
-    if len(output) > 20:
-        score += 0.25
+    return safe_score
 
 
-    # keyword reward
-    keywords = [
+def step_reward(raw_score: float) -> str:
+    """
+    STEP reward format
+    """
 
-        "fix",
-        "solution",
-        "issue",
-        "improve",
-        "update",
-        "implement",
-        "resolve",
-        "analyze"
+    score = clamp_score(raw_score)
 
-    ]
+    return f"[STEP] reward={score:.2f}"
 
 
-    keyword_hits = 0
+def end_reward(raw_score: float) -> str:
+    """
+    END reward format
+    """
 
-    for word in keywords:
+    score = clamp_score(raw_score)
 
-        if word in output:
-            keyword_hits += 1
-
-
-    score += keyword_hits * 0.07
-
-
-    # normalize keyword explosion
-    if score > 0.95:
-        score = 0.95
+    return f"[END] final_reward={score:.2f}"
 
 
-    # final normalization
-    score = safe_score(score)
+# Testing block (safe to keep)
+if __name__ == "__main__":
 
+    test_scores = [-2,0,0.235,0.678,1,3]
 
-    # NEVER round (important)
-    return float(score)
+    for s in test_scores:
+
+        print("Raw:",s)
+        print("Safe:",grade(s))
+        print(step_reward(s))
+        print(end_reward(s))
+        print()
