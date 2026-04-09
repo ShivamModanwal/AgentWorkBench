@@ -2,6 +2,16 @@ from inference import run_task
 from env.tasks import TASKS
 
 
+def normalize_score(score: float) -> float:
+
+    try:
+        score = float(score)
+    except Exception:
+        return 0.5
+
+    return max(0.02, min(0.98, score))
+
+
 # =========================
 # Run single task
 # =========================
@@ -33,6 +43,7 @@ def run_selected_task(task_id:str):
 
 
     score=run_task(task)
+    score=normalize_score(score)
 
 
     return {
@@ -63,7 +74,7 @@ def run_all_tasks():
 
         score=run_task(task)
 
-        score=float(score)
+        score=normalize_score(score)
 
         total+=score
 
@@ -72,7 +83,7 @@ def run_all_tasks():
 
             "task":task.title,
 
-            "reward":score,
+            "reward":float(score),
 
             "status":"completed"
 
@@ -85,14 +96,14 @@ def run_all_tasks():
 
     else:
 
-        avg=total/len(TASKS)
+        avg=normalize_score(total/len(TASKS))
 
 
     return {
 
         "results":outputs,
 
-        "average_score":round(avg,3)
+        "average_score":float(avg)
 
     }
 
