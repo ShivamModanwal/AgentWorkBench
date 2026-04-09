@@ -14,20 +14,25 @@ environment:
   action_type: typed
   reward_type: float
 tasks:
-  - id: task_easy
-    name: Task Classification
+  - id: "1"
+    name: Fix login bug
     difficulty: easy
-    objective: Classify engineering tasks correctly
+    objective: Classify and complete a login bug task correctly
     reward_range: [0.01, 0.99]
-  - id: task_medium
-    name: Priority Assignment
+  - id: "2"
+    name: Add dark mode
     difficulty: medium
-    objective: Classify tasks and assign correct priority
+    objective: Classify a feature task and assign the correct priority
     reward_range: [0.01, 0.99]
-  - id: task_hard
-    name: Workflow Optimization
+  - id: "3"
+    name: Update docs
+    difficulty: easy
+    objective: Classify and complete a documentation task correctly
+    reward_range: [0.01, 0.99]
+  - id: "4"
+    name: Handle production outage
     difficulty: hard
-    objective: Classify, prioritize and schedule tasks efficiently
+    objective: Classify, prioritize, and schedule a critical outage task correctly
     reward_range: [0.01, 0.99]
 evaluation:
   deterministic: true
