@@ -1,12 +1,12 @@
 """
 Baseline inference script for AgentWorkBench.
-Compliant with strict structured stdout logging and OpenEnv score bounds.
+Emits stdout in the OpenEnv hackathon format.
 """
 
 import json
 import os
 import sys
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from env.environment import AgentWorkBenchEnv
 from env.models import Action, TaskCategory, TaskPriority
@@ -51,19 +51,24 @@ def log_start(task_name: str) -> None:
     )
 
 
+def format_reward(value: object) -> str:
+    return f"{strict_score(value):.2f}"
+
+
 def log_step(step_num: int, action: dict, reward: float, done: bool, error: Optional[str]) -> None:
     error_text = error if error else "null"
     action_text = json.dumps(action, separators=(",", ":"))
     print(
-        f"[STEP] step={step_num} action={action_text} reward={strict_score(reward):.3f} "
+        f"[STEP] step={step_num} action={action_text} reward={format_reward(reward)} "
         f"done={str(done).lower()} error={error_text}",
         flush=True,
     )
 
 
-def log_end(task_name: str, score: float, success: bool) -> None:
+def log_end(success: bool, steps: int, rewards: List[float]) -> None:
+    reward_list = ",".join(format_reward(reward) for reward in rewards)
     print(
-        f"[END] task={task_name} success={str(success).lower()} score={strict_score(score):.3f}",
+        f"[END] success={str(success).lower()} steps={steps} rewards={reward_list}",
         flush=True,
     )
 
@@ -122,33 +127,32 @@ def run_task(task) -> float:
 
     action_payload = build_action(task)
     error = None
+    rewards: List[float] = []
 
     try:
         action = Action(**action_payload)
         _, reward, done, info = env.step(action)
         score = strict_score(info.get("score", reward) if isinstance(info, dict) else reward)
+        rewards.append(score)
         log_step(1, action_payload, reward, done, error)
-        log_end(task.title, score, score >= 0.5)
+        log_end(score >= 0.5, 1, rewards)
         return score
     except Exception as exc:
         error = str(exc).replace("\n", " ")
         fallback = 0.5
+        rewards.append(fallback)
         log_step(1, action_payload, fallback, True, error)
-        log_end(task.title, fallback, False)
+        log_end(False, 1, rewards)
         return fallback
 
 
 def evaluate() -> float:
-    print(f"[START] evaluation env={ENV_NAME} model={MODEL_NAME}", flush=True)
     scores = [strict_score(run_task(task)) for task in TASKS]
-    avg = strict_score(sum(scores) / len(scores)) if scores else 0.5
-    print(f"[END] evaluation score={avg:.3f}", flush=True)
-    return avg
+    return strict_score(sum(scores) / len(scores)) if scores else 0.5
 
 
 def main() -> None:
     evaluate()
-    print("[END] run_complete", flush=True)
     sys.stdout.flush()
 
 

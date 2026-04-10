@@ -9,7 +9,7 @@ def normalize_score(score: float) -> float:
     except Exception:
         return 0.5
 
-    return max(0.02, min(0.98, score))
+    return round(max(0.02, min(0.98, score)), 2)
 
 
 # =========================
@@ -36,6 +36,7 @@ def run_selected_task(task_id:str):
             "task":"unknown",
 
             "reward":0.5,
+            "score":0.5,
 
             "status":"failed"
 
@@ -53,6 +54,7 @@ def run_selected_task(task_id:str):
         "description":task.description,
 
         "reward":float(score),
+        "score":float(score),
 
         "status":"completed"
 
@@ -84,6 +86,7 @@ def run_all_tasks():
             "task":task.title,
 
             "reward":float(score),
+            "score":float(score),
 
             "status":"completed"
 

@@ -14,7 +14,7 @@ env = AgentWorkBenchEnv()
 def clamp_score(val):
     """Ensures no score leaves the API as exactly 0.0 or 1.0"""
     try:
-        return max(0.02, min(0.98, float(val)))
+        return round(max(0.02, min(0.98, float(val))), 2)
     except Exception:
         return 0.5
 
@@ -138,7 +138,8 @@ def run_baseline():
         obs,r,done,info = env.step(action)
         results.append({
             "task_id":t.id,
-            "reward": clamp_score(r) # Guarded
+            "reward": clamp_score(r), # Guarded
+            "score": clamp_score(r)
         })
         
     state=env.state()
