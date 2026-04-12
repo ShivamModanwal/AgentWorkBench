@@ -9,26 +9,40 @@ import uvicorn
 app = FastAPI(title="AgentWorkBench Environment")
 env = AgentWorkBenchEnv()
 
-def clamp_info_scores(info):
-    if not isinstance(info, dict):
-        return {}
+# =======================================================
+# THE ULTIMATE SAFEGUARD: Recursive Clamper
+# Yeh function JSON ke kisi bhi kone se score dhoondh kar lock kar dega
+# =======================================================
+def deep_clamp_scores(obj):
+    if isinstance(obj, dict):
+        clamped_dict = {}
+        for key, value in obj.items():
+            k_str = str(key).lower()
+            # Agar key ke naam mein yeh words hain, toh uski value clamp hogi
+            is_score_key = any(x in k_str for x in ["score", "reward", "efficiency", "penalty", "bonus", "result"])
+            
+            if isinstance(value, (dict, list)):
+                clamped_dict[key] = deep_clamp_scores(value)
+            elif is_score_key and isinstance(value, (int, float)):
+                try:
+                    clamped_dict[key] = float(clamp_score(value))
+                except Exception:
+                    clamped_dict[key] = 0.5
+            else:
+                clamped_dict[key] = value
+        return clamped_dict
+    elif isinstance(obj, list):
+        return [deep_clamp_scores(item) for item in obj]
+    return obj
 
-    safe_info = dict(info)
-    for key in ["score", "task_score", "step_reward", "total_reward", "reward"]:
-        if key in safe_info:
-            safe_info[key] = clamp_score(safe_info[key])
-    return safe_info
 
 # =========================
-# Home
+# Home & Health
 # =========================
 @app.get("/")
 def home():
     return {"message":"AgentWorkBench Environment Running"}
 
-# =========================
-# Health
-# =========================
 @app.get("/health")
 def health():
     return {"status":"ok"}
@@ -39,20 +53,22 @@ def health():
 @app.post("/reset")
 def reset_env():
     obs = env.reset()
-    return JSONResponse(content=obs.model_dump())
+    # Pura JSON response deep_clamp se guzrega
+    return JSONResponse(content=deep_clamp_scores(obs.model_dump()))
 
 # =========================
 # Step
 # =========================
 @app.post("/step")
 def step_env(action:Action):
-    obs,r,done,info = env.step(action)
-    return {
-        "observation":obs.model_dump(),
-        "reward": clamp_score(r),  # Guarded
-        "done":done,
-        "info":clamp_info_scores(info)
+    obs, r, done, info = env.step(action)
+    raw_response = {
+        "observation": obs.model_dump(),
+        "reward": r, 
+        "done": done,
+        "info": info
     }
+    return deep_clamp_scores(raw_response)
 
 # =========================
 # State
@@ -60,11 +76,7 @@ def step_env(action:Action):
 @app.get("/state")
 def get_state():
     state = env.state()
-    state_dict = state.model_dump()
-    for key in ["score", "avg_reward", "total_reward", "efficiency"]:
-        if key in state_dict:
-            state_dict[key] = clamp_score(state_dict[key])
-    return state_dict
+    return deep_clamp_scores(state.model_dump())
 
 # =========================
 # Tasks
@@ -72,7 +84,7 @@ def get_state():
 @app.get("/tasks")
 def get_tasks():
     obs = env.reset()
-    return obs.model_dump()
+    return deep_clamp_scores(obs.model_dump())
 
 # =========================
 # Grader state
@@ -80,20 +92,7 @@ def get_tasks():
 @app.get("/grader")
 def get_grader():
     state_dict = env.state().model_dump()
-    
-    # Explicitly guard any score fields in the state dump
-    for key in ["score", "avg_reward", "total_reward", "efficiency"]:
-        if key in state_dict:
-            state_dict[key] = clamp_score(state_dict[key])
-            
-    # Guard individual task scores if present
-    if "task_results" in state_dict and isinstance(state_dict["task_results"], list):
-        for task in state_dict["task_results"]:
-            for k in ["reward", "score"]:
-                if k in task:
-                    task[k] = clamp_score(task[k])
-                    
-    return state_dict
+    return deep_clamp_scores(state_dict)
 
 # =========================
 # Baseline agent
@@ -125,36 +124,39 @@ def run_baseline():
             scheduled_position=getattr(t, "schedule_position", 1),
             mark_complete=True
         )
-        obs,r,done,info = env.step(action)
+        obs, r, done, info = env.step(action)
         results.append({
-            "task_id":t.id,
-            "reward": clamp_score(r), # Guarded
-            "score": clamp_score(r)
+            "task_id": t.id,
+            "reward": r,
+            "score": r
         })
         
     state=env.state()
-    return {
-        "task_results":results,
-        "final_score": clamp_score(state.score),       # Guarded
-        "efficiency": clamp_score(state.efficiency),     # Guarded
-        "total_reward": clamp_score(state.total_reward)  # Guarded
+    raw_response = {
+        "task_results": results,
+        "final_score": state.score,
+        "efficiency": state.efficiency,
+        "total_reward": state.total_reward
     }
+    return deep_clamp_scores(raw_response)
 
 # =========================
 # Run single task
 # =========================
 @app.get("/run_task/{task_id}")
 def api_run_task(task_id:str):
-    result=run_selected_task(task_id)
-    return result
+    result = run_selected_task(task_id)
+    # THE FIX: Ab yahan se dictionary bina clamp huye nahi jayegi
+    return deep_clamp_scores(result)
 
 # =========================
 # Run all tasks
 # =========================
 @app.get("/run_all")
 def api_run_all():
-    result=run_all_tasks()
-    return result
+    result = run_all_tasks()
+    # THE FIX: Yahan bhi clamp lag gaya!
+    return deep_clamp_scores(result)
 
 # =========================
 # Main
