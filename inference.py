@@ -19,7 +19,7 @@ except Exception:
     OpenAI = None
     
 
-ENV_NAME = "agentworkbench"
+ENV_NAME = "agentworkbench-FIXED"
 API_BASE_URL = os.getenv("API_BASE_URL") or "https://api.openai.com/v1"
 MODEL_NAME = os.getenv("MODEL_NAME") or "gpt-4o-mini"
 HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
