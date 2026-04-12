@@ -125,17 +125,17 @@ class Action(BaseModel):
 
 class Reward(BaseModel):
 
-    classification_reward:float=Field(default=0.0,ge=0,le=1)
+    classification_reward:float=Field(default=0.001,gt=0,lt=1)
 
-    priority_reward:float=Field(default=0.0,ge=0,le=1)
+    priority_reward:float=Field(default=0.001,gt=0,lt=1)
 
-    scheduling_reward:float=Field(default=0.0,ge=0,le=1)
+    scheduling_reward:float=Field(default=0.001,gt=0,lt=1)
 
-    efficiency_reward:float=Field(default=0.0,ge=0,le=1)
+    efficiency_reward:float=Field(default=0.001,gt=0,lt=1)
 
-    penalty:float=Field(default=0.0,ge=0,le=1)
+    penalty:float=Field(default=0.001,gt=0,lt=1)
 
-    total:float=Field(default=0.5,ge=0,le=1)
+    total:float=Field(default=0.5,gt=0,lt=1)
 
 
 

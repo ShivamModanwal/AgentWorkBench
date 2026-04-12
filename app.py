@@ -98,7 +98,11 @@ def run_all_tasks():
 
         "results":outputs,
 
-        "average_score":float(avg)
+        "score":float(avg),
+
+        "average_score":float(avg),
+
+        "final_score":float(avg)
 
     }
 

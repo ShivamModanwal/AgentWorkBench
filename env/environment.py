@@ -45,6 +45,29 @@ class AgentWorkBenchEnv:
         return r
 
 
+    def build_info(self, step_reward, error=None):
+
+        safe_step_reward = self.safe_reward(step_reward)
+
+        info = {
+
+            "step_reward": safe_step_reward,
+
+            "total_reward": self.safe_reward(self.total_reward),
+
+            "completed": len(self.completed),
+
+            "score": safe_step_reward
+
+        }
+
+        if error is not None:
+
+            info["error"] = error
+
+        return info
+
+
     # =========================
     # Reset
     # =========================
@@ -97,7 +120,12 @@ class AgentWorkBenchEnv:
 
         if self.done:
 
-            return self._get_obs(),0.02,True,{}
+            r = self.safe_reward(self.ALREADY_COMPLETED_REWARD)
+
+            return self._get_obs(),r,True,self.build_info(
+                r,
+                error="Episode already finished"
+            )
 
         self.current_step+=1
 
@@ -109,13 +137,12 @@ class AgentWorkBenchEnv:
 
             self.mistakes+=1
 
-            return self._get_obs(),0.02,self.done,{
+            r = self.safe_reward(0.02)
 
-                "error":"Invalid task_id",
-
-                "score":0.02
-
-            }
+            return self._get_obs(),r,self.done,self.build_info(
+                r,
+                error="Invalid task_id"
+            )
 
 
         if task.id in self.completed:
@@ -126,13 +153,10 @@ class AgentWorkBenchEnv:
 
             r=self.safe_reward(r)
 
-            return self._get_obs(),r,self.done,{
-
-                "error":"Already completed",
-
-                "score":r
-
-            }
+            return self._get_obs(),r,self.done,self.build_info(
+                r,
+                error="Already completed"
+            )
 
 
         try:
@@ -195,17 +219,7 @@ class AgentWorkBenchEnv:
         obs=self._get_obs()
 
 
-        info={
-
-            "step_reward":self.safe_reward(r),
-
-            "total_reward":self.safe_reward(self.total_reward),
-
-            "completed":len(self.completed),
-
-            "score":self.safe_reward(r)
-
-        }
+        info=self.build_info(r)
 
 
         return obs,self.safe_reward(r),self.done,info
