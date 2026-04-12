@@ -47,4 +47,8 @@ def grade(expected, output):
 
     score = safe_score(score)
 
-    return float(clamp_score(score))
+    return clamp_score(score)
+
+
+    
+  
