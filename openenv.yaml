@@ -1,5 +1,5 @@
 name: AgentWorkBench
-version: 1.0.0
+version: 1.0.1
 description: >
   AgentWorkBench is a real-world OpenEnv environment designed to evaluate
   AI agents on workplace task management including task classification,
