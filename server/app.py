@@ -61,13 +61,21 @@ def reset_env():
 # =========================
 @app.post("/step")
 def step_env(action:Action):
-    obs,r,done,info = env.step(action)
-    return {
-        "observation":obs.model_dump(),
-        "reward": clamp_score(r),  # Guarded
-        "done":done,
-        "info":clamp_info_scores(info)
+    obs, r, done, info = env.step(action)
+    raw_response = {
+        "observation": obs.model_dump(),
+        "reward": r,
+        "score": r,
+        "done": done,
+        "info": {
+            "step_reward": r,
+            "score": r,
+            "total_reward": getattr(env, "total_reward", 0.5),
+            "completed": len(getattr(env, "completed", [])),
+            **(info if isinstance(info, dict) else {}),
+        }
     }
+    return deep_clamp_scores(raw_response)
 
 # =========================
 # State
@@ -82,8 +90,9 @@ def get_state():
 # =========================
 @app.get("/tasks")
 def get_tasks():
-    obs = env.reset()
-    return obs.model_dump()
+    task_env = AgentWorkBenchEnv()
+    obs = task_env.reset()
+    return deep_clamp_scores(obs.model_dump())
 
 # =========================
 # Grader state
@@ -123,20 +132,22 @@ def run_baseline():
             scheduled_position=getattr(t, "schedule_position", 1),
             mark_complete=True
         )
-        obs,r,done,info = env.step(action)
+        obs, r, done, info = baseline_env.step(action)
         results.append({
             "task_id": t.id,
             "reward": r,
             "score": r
         })
         
-    state=env.state()
-    return {
-        "task_results":results,
-        "final_score": clamp_score(state.score),       # Guarded
-        "efficiency": clamp_score(state.efficiency),     # Guarded
-        "total_reward": clamp_score(state.total_reward)  # Guarded
+    state = baseline_env.state()
+    raw_response = {
+        "task_results": results,
+        "score": state.score,
+        "final_score": state.score,
+        "efficiency": state.efficiency,
+        "total_reward": state.total_reward,
     }
+    return deep_clamp_scores(raw_response)
 
 # =========================
 # Run single task
