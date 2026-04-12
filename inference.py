@@ -10,13 +10,14 @@ from typing import List, Optional, Tuple
 
 from env.environment import AgentWorkBenchEnv
 from env.models import Action, TaskCategory, TaskPriority
+from env.score_utils import clamp_score, format_clamped_score
 from env.tasks import TASKS
 
 try:
     from openai import OpenAI
 except Exception:
     OpenAI = None
-
+    
 
 ENV_NAME = "agentworkbench"
 API_BASE_URL = os.getenv("API_BASE_URL") or "https://api.openai.com/v1"
@@ -25,11 +26,7 @@ HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
 
 
 def strict_score(value: object) -> float:
-    try:
-        score = float(value)
-    except Exception:
-        return 0.5
-    return max(0.02, min(0.98, score))
+    return clamp_score(value)
 
 
 def get_client() -> Optional["OpenAI"]:
@@ -52,7 +49,7 @@ def log_start(task_name: str) -> None:
 
 
 def format_reward(value: object) -> str:
-    return f"{strict_score(value):.2f}"
+    return format_clamped_score(value)
 
 
 def log_step(step_num: int, action: dict, reward: float, done: bool, error: Optional[str]) -> None:
@@ -132,14 +129,14 @@ def run_task(task) -> float:
     try:
         action = Action(**action_payload)
         _, reward, done, info = env.step(action)
-        score = strict_score(info.get("score", reward) if isinstance(info, dict) else reward)
+        score = clamp_score(info.get("score", reward) if isinstance(info, dict) else reward)
         rewards.append(score)
         log_step(1, action_payload, reward, done, error)
         log_end(score >= 0.5, 1, rewards)
         return score
     except Exception as exc:
         error = str(exc).replace("\n", " ")
-        fallback = 0.5
+        fallback = clamp_score(0.5)
         rewards.append(fallback)
         log_step(1, action_payload, fallback, True, error)
         log_end(False, 1, rewards)
@@ -147,8 +144,8 @@ def run_task(task) -> float:
 
 
 def evaluate() -> float:
-    scores = [strict_score(run_task(task)) for task in TASKS]
-    return strict_score(sum(scores) / len(scores)) if scores else 0.5
+    scores = [clamp_score(run_task(task)) for task in TASKS]
+    return clamp_score(sum(scores) / len(scores)) if scores else clamp_score(0.5)
 
 
 def main() -> None:

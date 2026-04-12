@@ -3,21 +3,11 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from env.environment import AgentWorkBenchEnv
 from env.models import Action, TaskCategory, TaskPriority
+from env.score_utils import clamp_score
 import uvicorn
 
 app = FastAPI(title="AgentWorkBench Environment")
 env = AgentWorkBenchEnv()
-
-# =========================
-# Security Guard for Scores
-# =========================
-def clamp_score(val):
-    """Ensures no score leaves the API as exactly 0.0 or 1.0"""
-    try:
-        return round(max(0.02, min(0.98, float(val))), 2)
-    except Exception:
-        return 0.5
-
 
 def clamp_info_scores(info):
     if not isinstance(info, dict):

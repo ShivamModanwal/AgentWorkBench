@@ -4,23 +4,11 @@ Normalizes total reward into final score.
 Ensures deterministic evaluation.
 """
 
+from .score_utils import clamp_score
+
 
 def safe_score(score):
-
-    try:
-        score = float(score)
-    except Exception:
-        return 0.5
-
-    if score <= 0:
-        return 0.05
-
-    if score >= 1:
-        return 0.95
-
-    score = max(0.05, min(0.95, score))
-
-    return score
+    return clamp_score(score)
 
 
 def grade(expected, output):
@@ -59,4 +47,4 @@ def grade(expected, output):
 
     score = safe_score(score)
 
-    return float(score)
+    return float(clamp_score(score))

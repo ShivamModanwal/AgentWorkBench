@@ -1,15 +1,10 @@
 from inference import run_task
+from env.score_utils import clamp_score
 from env.tasks import TASKS
 
 
 def normalize_score(score: float) -> float:
-
-    try:
-        score = float(score)
-    except Exception:
-        return 0.5
-
-    return round(max(0.02, min(0.98, score)), 2)
+    return clamp_score(score)
 
 
 # =========================
@@ -35,16 +30,15 @@ def run_selected_task(task_id:str):
 
             "task":"unknown",
 
-            "reward":0.5,
-            "score":0.5,
+            "reward":float(clamp_score(0.5)),
+            "score":float(clamp_score(0.5)),
 
             "status":"failed"
 
         }
 
 
-    score=run_task(task)
-    score=normalize_score(score)
+    score=clamp_score(run_task(task))
 
 
     return {
@@ -53,8 +47,8 @@ def run_selected_task(task_id:str):
 
         "description":task.description,
 
-        "reward":float(score),
-        "score":float(score),
+        "reward":float(clamp_score(score)),
+        "score":float(clamp_score(score)),
 
         "status":"completed"
 
@@ -74,9 +68,7 @@ def run_all_tasks():
 
     for task in TASKS:
 
-        score=run_task(task)
-
-        score=normalize_score(score)
+        score=clamp_score(run_task(task))
 
         total+=score
 
@@ -85,8 +77,8 @@ def run_all_tasks():
 
             "task":task.title,
 
-            "reward":float(score),
-            "score":float(score),
+            "reward":float(clamp_score(score)),
+            "score":float(clamp_score(score)),
 
             "status":"completed"
 
@@ -95,11 +87,11 @@ def run_all_tasks():
 
     if len(TASKS)==0:
 
-        avg=0.5
+        avg=clamp_score(0.5)
 
     else:
 
-        avg=normalize_score(total/len(TASKS))
+        avg=clamp_score(total/len(TASKS))
 
 
     return {
