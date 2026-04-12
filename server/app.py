@@ -36,6 +36,53 @@ def deep_clamp_scores(obj):
     return obj
 
 
+def build_task_results():
+    grader_env = AgentWorkBenchEnv()
+    grader_env.reset()
+    results = []
+
+    for task in grader_env.tasks:
+        title = task.title.lower()
+
+        if "bug" in title or "fix" in title:
+            category = TaskCategory.BUG
+            priority = TaskPriority.CRITICAL
+        elif "add" in title or "feature" in title:
+            category = TaskCategory.FEATURE
+            priority = TaskPriority.MEDIUM
+        elif "doc" in title:
+            category = TaskCategory.DOCUMENTATION
+            priority = TaskPriority.LOW
+        else:
+            category = TaskCategory.DEVOPS
+            priority = TaskPriority.CRITICAL
+
+        action = Action(
+            task_id=task.id,
+            predicted_category=category,
+            predicted_priority=priority,
+            scheduled_position=getattr(task, "schedule_position", 1),
+            mark_complete=True
+        )
+
+        _, reward, _, _ = grader_env.step(action)
+        results.append({
+            "task_id": task.id,
+            "reward": reward,
+            "score": reward
+        })
+
+    state = grader_env.state()
+
+    return {
+        "task_results": results,
+        "score": state.score,
+        "final_score": state.score,
+        "efficiency": state.efficiency,
+        "total_reward": state.total_reward,
+    }
+
+
 # =========================
 # Home & Health
 # =========================
@@ -82,8 +129,9 @@ def step_env(action:Action):
 # =========================
 @app.get("/state")
 def get_state():
-    state = env.state()
-    return deep_clamp_scores(state.model_dump())
+    state_payload = env.state().model_dump()
+    state_payload["task_results"] = build_task_results()["task_results"]
+    return deep_clamp_scores(state_payload)
 
 # =========================
 # Tasks
@@ -99,55 +147,14 @@ def get_tasks():
 # =========================
 @app.get("/grader")
 def get_grader():
-    state_dict = env.state().model_dump()
-    return deep_clamp_scores(state_dict)
+    return deep_clamp_scores(build_task_results())
 
 # =========================
 # Baseline agent
 # =========================
 @app.get("/baseline")
 def run_baseline():
-    baseline_env = AgentWorkBenchEnv()
-    baseline_env.reset()
-    results=[]
-    for t in baseline_env.tasks:
-        title=t.title.lower()
-        if "bug" in title or "fix" in title:
-            category=TaskCategory.BUG
-            priority=TaskPriority.CRITICAL
-        elif "add" in title or "feature" in title:
-            category=TaskCategory.FEATURE
-            priority=TaskPriority.MEDIUM
-        elif "doc" in title:
-            category=TaskCategory.DOCUMENTATION
-            priority=TaskPriority.LOW
-        else:
-            category=TaskCategory.DEVOPS
-            priority=TaskPriority.CRITICAL
-            
-        action=Action(
-            task_id=t.id,
-            predicted_category=category,
-            predicted_priority=priority,
-            scheduled_position=getattr(t, "schedule_position", 1),
-            mark_complete=True
-        )
-        obs, r, done, info = baseline_env.step(action)
-        results.append({
-            "task_id": t.id,
-            "reward": r,
-            "score": r
-        })
-        
-    state = baseline_env.state()
-    raw_response = {
-        "task_results": results,
-        "score": state.score,
-        "final_score": state.score,
-        "efficiency": state.efficiency,
-        "total_reward": state.total_reward,
-    }
-    return deep_clamp_scores(raw_response)
+    return deep_clamp_scores(build_task_results())
 
 # =========================
 # Run single task
