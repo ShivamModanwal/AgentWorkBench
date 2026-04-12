@@ -49,8 +49,19 @@ def log_start(task_name: str) -> None:
 
 
 def format_reward(value: object) -> str:
-    return format_clamped_score(value)
-
+    """
+    Yeh function strictly string ko control karega taaki 
+    round off hokar bhi 1.0 print na ho.
+    """
+    try:
+        val = float(value)
+        # Ek baar aur strictly clamp karo
+        clamped_val = max(0.001, min(0.999, val))
+        # Exact 4 decimal places print karo (jaise 0.9990)
+        return f"{clamped_val:.4f}"
+    except Exception:
+        # Agar error aaye toh safe string
+        return "0.0010"
 
 def log_step(step_num: int, action: dict, reward: float, done: bool, error: Optional[str]) -> None:
     error_text = error if error else "null"
