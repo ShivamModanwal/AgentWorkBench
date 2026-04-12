@@ -121,19 +121,25 @@ def run_task(task) -> float:
     env = AgentWorkBenchEnv()
     env.reset()
     log_start(task.title)
-
+    
     action_payload = build_action(task)
     error = None
     rewards: List[float] = []
-
+    
     try:
         action = Action(**action_payload)
         _, reward, done, info = env.step(action)
+        
+        # Yahan score safely clamp ho gaya
         score = clamp_score(info.get("score", reward) if isinstance(info, dict) else reward)
         rewards.append(score)
-        log_step(1, action_payload, reward, done, error)
+        
+        # ✅ FIX: Raw 'reward' ki jagah clamped 'score' ko log mein bhejo
+        log_step(1, action_payload, score, done, error)
+        
         log_end(score >= 0.5, 1, rewards)
         return score
+        
     except Exception as exc:
         error = str(exc).replace("\n", " ")
         fallback = clamp_score(0.5)
